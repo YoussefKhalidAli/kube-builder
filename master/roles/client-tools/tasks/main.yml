@@ -1,0 +1,41 @@
+---
+- name: Get latest Kubernetes version
+  shell: curl -L -s https://dl.k8s.io/release/stable.txt
+  register: k8s_version
+  changed_when: false
+
+- name: Download kubectl binary
+  get_url:
+    url: "https://dl.k8s.io/release/{{ k8s_version.stdout }}/bin/linux/amd64/kubectl"
+    dest: /tmp/kubectl
+    mode: "0755"
+
+- name: Download kubectl checksum
+  get_url:
+    url: "https://dl.k8s.io/release/{{ k8s_version.stdout }}/bin/linux/amd64/kubectl.sha256"
+    dest: /tmp/kubectl.sha256
+
+- name: Verify kubectl checksum
+  shell: |
+    echo "$(cat /tmp/kubectl.sha256)  /tmp/kubectl" | sha256sum --check
+  register: checksum_result
+  changed_when: false
+  failed_when: "'OK' not in checksum_result.stdout"
+
+- name: Install kubectl
+  copy:
+    src: /tmp/kubectl
+    dest: /usr/local/bin/kubectl
+    mode: "0755"
+    owner: root
+    group: root
+    remote_src: yes
+
+- name: Verify kubectl installation
+  command: kubectl version --client
+  register: kubectl_version
+  changed_when: false
+
+- name: Print kubectl version
+  debug:
+    msg: "kubectl version: {{ kubectl_version.stdout }}"

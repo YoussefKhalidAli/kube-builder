@@ -1,0 +1,9 @@
+- name: Set up Kubernetes Master
+  hosts: localhost
+  gather_facts: true
+  become: true
+
+  roles:
+    - common
+    - client-tools
+    - certs
