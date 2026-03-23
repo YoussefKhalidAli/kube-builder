@@ -1,0 +1,45 @@
+cluster:
+  name: test
+kubeconfig_dir: /var/lib/kubernetes
+loadbalancer: "{{ ansible_default_ipv4.address | default('127.0.0.1') }}"
+
+kubeconfigs:
+  - name: kube-proxy
+    user: system:kube-proxy
+    file: kube-proxy.kubeconfig
+    cert: kube-proxy.crt
+    key: kube-proxy.key
+    server: "{{ ansible_default_ipv4.address | default('127.0.0.1') }}"
+    isUser: false
+
+  - name: kube-scheduler
+    user: system:kube-scheduler
+    file: kube-scheduler.kubeconfig
+    cert: kube-scheduler.crt
+    key: kube-scheduler.key
+    server: "127.0.0.1"
+    isUser: false
+
+  - name: kube-controller-manager
+    user: system:kube-controller-manager
+    file: kube-controller-manager.kubeconfig
+    cert: kube-controller-manager.crt
+    key: kube-controller-manager.key
+    server: "127.0.0.1"
+    isUser: false
+
+  - name: kube-proxy
+    user: system:kube-proxy
+    file: kube-proxy.kubeconfig
+    cert: kube-proxy.crt
+    key: kube-proxy.key
+    server: "127.0.0.1"
+    isUser: false
+
+  - name: admin
+    user: admin
+    file: admin.kubeconfig
+    cert: admin.crt
+    key: admin.key
+    server: "127.0.0.1"
+    isUser: true
