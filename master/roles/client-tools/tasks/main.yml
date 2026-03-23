@@ -1,35 +1,70 @@
----
 - name: Get latest Kubernetes version
-  shell: curl -L -s https://dl.k8s.io/release/stable.txt
-  register: k8s_version
+  uri:
+    url: https://dl.k8s.io/release/stable.txt
+    return_content: yes
+  register: k8s_version_result
+  changed_when: false
+  when: k8s_version == ""
+
+- name: Set Kubernetes version
+  set_fact:
+    k8s_version: "{{ k8s_version_result.content | trim }}"
+  when: k8s_version == ""
+
+- name: Get installed kubectl version
+  command: kubectl version --client
+  register: kubectl_installed
+  failed_when: false
   changed_when: false
 
-- name: Download kubectl binary
-  get_url:
-    url: "https://dl.k8s.io/release/{{ k8s_version.stdout }}/bin/linux/amd64/kubectl"
-    dest: /tmp/kubectl
-    mode: "0755"
+- name: Extract installed version
+  set_fact:
+    kubectl_installed_version: "{{ kubectl_installed.stdout | regex_search('v[0-9]+\\.[0-9]+\\.[0-9]+') }}"
+  when: kubectl_installed.rc == 0
 
-- name: Download kubectl checksum
-  get_url:
-    url: "https://dl.k8s.io/release/{{ k8s_version.stdout }}/bin/linux/amd64/kubectl.sha256"
-    dest: /tmp/kubectl.sha256
+- name: Set install flag
+  set_fact:
+    install_kubectl: "{{ kubectl_installed_version is not defined or kubectl_installed_version != k8s_version }}"
 
-- name: Verify kubectl checksum
-  shell: |
-    echo "$(cat /tmp/kubectl.sha256)  /tmp/kubectl" | sha256sum --check
-  register: checksum_result
-  changed_when: false
-  failed_when: "'OK' not in checksum_result.stdout"
+# Optional debug (Remove in the end)
 
-- name: Install kubectl
-  copy:
-    src: /tmp/kubectl
-    dest: /usr/local/bin/kubectl
-    mode: "0755"
-    owner: root
-    group: root
-    remote_src: yes
+- name: Show decision
+  debug:
+    msg: >
+      Installed: {{ kubectl_installed_version | default('none') }},
+      Desired: {{ k8s_version }},
+      Install: {{ install_kubectl }}
+
+- block:
+    - name: Download kubectl binary
+      get_url:
+        url: "https://dl.k8s.io/release/{{ k8s_version }}/bin/linux/amd64/kubectl"
+        dest: /tmp/kubectl
+        mode: "0755"
+
+    - name: Download kubectl checksum
+      get_url:
+        url: "https://dl.k8s.io/release/{{ k8s_version }}/bin/linux/amd64/kubectl.sha256"
+        dest: /tmp/kubectl.sha256
+
+    - name: Verify kubectl checksum
+      shell: |
+        echo "$(cat /tmp/kubectl.sha256)  /tmp/kubectl" | sha256sum --check
+      register: checksum_result
+      changed_when: false
+      failed_when: "'OK' not in checksum_result.stdout"
+
+    - name: Install kubectl
+      copy:
+        src: /tmp/kubectl
+        dest: /usr/local/bin/kubectl
+        mode: "0755"
+        owner: root
+        group: root
+        remote_src: yes
+      become: yes
+
+  when: install_kubectl
 
 - name: Verify kubectl installation
   command: kubectl version --client

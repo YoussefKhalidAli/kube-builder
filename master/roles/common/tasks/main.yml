@@ -1,7 +1,9 @@
 ---
-- name: Install OpenSSL
+- name: Install required packages
   apt:
-    name: "openssl"
+    name:
+      - "openssl"
+      - "curl"
     state: present
     #update_cache: yes
   become: yes
