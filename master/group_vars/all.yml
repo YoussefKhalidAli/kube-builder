@@ -1,6 +1,34 @@
 kubernetes_version: "1.29.0"
 pod_cidr: "10.244.0.0/16"
 service_cidr: "10.96.0.0/12"
+api_service_ip: "{{ service_cidr.split('.')[0] }}.{{ service_cidr.split('.')[1] }}.{{ service_cidr.split('.')[2] }}.1"
+control_plane_ip: "{{ ansible_default_ipv4.address | default('172.25.0.10')}}" # Remove default when running on actual host
 
-common_packages:
-  - kubectl
+# Certificates
+cert_dir: /etc/kubernetes/pki
+ca_expiration: +1000d
+apiserver_expiration: +1000d
+kube_apiserver_cert:
+  name: kube-apiserver
+  subj: "/CN=kube-apiserver/O=Kubernetes"
+
+ca_cert:
+  name: ca
+  subj: "/CN=KUBERNETES-CA/O=Kubernetes"
+
+certs:
+  - name: kube-controller-manager
+    subj: "/CN=system:kube-controller-manager/O=system:kube-controller-manager"
+    expiration: +1000d
+  - name: kube-scheduler
+    subj: "/CN=system:kube-scheduler/O=system:kube-scheduler"
+    expiration: +1000d
+  - name: kube-proxy
+    subj: "/CN=system:kube-proxy/O=system:node-proxier"
+    expiration: +1000d
+  - name: service-account
+    subj: "/CN=service-accounts/O=Kubernetes"
+    expiration: +1000d
+  - name: admin
+    subj: "/CN=admin/O=system:masters"
+    expiration: +1000d

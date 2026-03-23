@@ -1,0 +1,129 @@
+- name: Ensure certificate directory exists
+  file:
+    path: "{{ cert_dir }}"
+    state: directory
+    mode: "0755"
+
+# CA certificate
+- name: Generate CA private key
+  community.crypto.openssl_privatekey:
+    path: "{{ cert_dir }}/{{ ca_cert.name }}.key"
+    size: 2048
+    type: RSA
+
+- name: Generate CA CSR
+  community.crypto.openssl_csr:
+    path: "{{ cert_dir }}/{{ ca_cert.name }}.csr"
+    privatekey_path: "{{ cert_dir }}/{{ ca_cert.name }}.key"
+    common_name: "KUBERNETES-CA"
+    organization_name: "Kubernetes"
+    basic_constraints:
+      - "CA:TRUE" # marks it as a CA cert
+    basic_constraints_critical: yes
+    key_usage:
+      - keyCertSign
+      - cRLSign
+    key_usage_critical: yes
+
+- name: Generate CA self-signed certificate
+  community.crypto.x509_certificate:
+    path: "{{ cert_dir }}/{{ ca_cert.name }}.crt"
+    csr_path: "{{ cert_dir }}/{{ ca_cert.name }}.csr"
+    privatekey_path: "{{ cert_dir }}/{{ ca_cert.name }}.key"
+    provider: selfsigned
+    selfsigned_create_subject_key_identifier: always_create
+    selfsigned_not_after: "{{ ca_expiration }}"
+    unsafe_writes: yes
+    force: yes
+
+# Other certs
+- name: Generate private keys for all other certs
+  community.crypto.openssl_privatekey:
+    path: "{{ cert_dir }}/{{ item.name }}.key"
+    size: 2048
+    type: RSA
+  loop: "{{ certs }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Generate CSRs for all other certs
+  community.crypto.openssl_csr:
+    path: "{{ cert_dir }}/{{ item.name }}.csr"
+    privatekey_path: "{{ cert_dir }}/{{ item.name }}.key"
+    common_name: "{{ item.subj.split('/CN=')[1].split('/')[0] }}"
+    organization_name: "{{ item.subj.split('/O=')[1] }}"
+  loop: "{{ certs }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Sign all certificates with CA
+  community.crypto.x509_certificate:
+    path: "{{ cert_dir }}/{{ item.name }}.crt"
+    csr_path: "{{ cert_dir }}/{{ item.name }}.csr"
+    ownca_path: "{{ cert_dir }}/{{ ca_cert.name }}.crt"
+    ownca_privatekey_path: "{{ cert_dir }}/{{ ca_cert.name }}.key"
+    ownca_not_after: "{{ item.expiration }}"
+    provider: ownca
+  loop: "{{ certs }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+# Kube-apiserver certificate
+- name: Generate kube-apiserver private key
+  community.crypto.openssl_privatekey:
+    path: "{{ cert_dir }}/{{ kube_apiserver_cert.name }}.key"
+    size: 2048
+    type: RSA
+
+- name: Generate kube-apiserver CSR
+  community.crypto.openssl_csr:
+    path: "{{ cert_dir }}/{{ kube_apiserver_cert.name }}.csr"
+    privatekey_path: "{{ cert_dir }}/{{ kube_apiserver_cert.name }}.key"
+    common_name: "kube-apiserver"
+    organization_name: "Kubernetes"
+    subject_alt_name:
+      - "DNS:kubernetes"
+      - "DNS:kubernetes.default"
+      - "DNS:kubernetes.default.svc"
+      - "DNS:kubernetes.default.svc.cluster"
+      - "DNS:kubernetes.default.svc.cluster.local"
+      - "IP:{{ api_service_ip }}"
+      - "IP:{{ control_plane_ip }}"
+      - "IP:127.0.0.1"
+
+- name: Sign kube-apiserver certificate with CA
+  community.crypto.x509_certificate:
+    path: "{{ cert_dir }}/{{ kube_apiserver_cert.name }}.crt"
+    csr_path: "{{ cert_dir }}/{{ kube_apiserver_cert.name }}.csr"
+    ownca_path: "{{ cert_dir }}/{{ ca_cert.name }}.crt"
+    ownca_privatekey_path: "{{ cert_dir }}/{{ ca_cert.name }}.key"
+    ownca_not_after: "{{ apiserver_expiration }}"
+    provider: ownca
+
+# Set the encryption key for secrets encryption
+- name: Check if encryption key exists
+  stat:
+    path: "{{ encryption_key_file }}"
+  register: key_file
+
+- name: Generate and save encryption key (only once)
+  copy:
+    content: "{{ lookup('community.general.random_string', length=32) | b64encode }}"
+    dest: "{{ encryption_key_file }}"
+    mode: "0600"
+  when: not key_file.stat.exists
+
+- name: Load encryption key
+  slurp:
+    src: "{{ encryption_key_file }}"
+  register: saved_key
+
+- name: Set encryption key fact
+  set_fact:
+    encryption_key: "{{ saved_key.content | b64decode }}"
+
+- name: Create encryption config
+  template:
+    src: encryption-config.yaml.j2
+    dest: "{{ encryption_config_file }}"
+    mode: "0600"
