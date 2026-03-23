@@ -1,4 +1,4 @@
-- name: Generate {{ item.name}} kubeconfig - set cluster
+- name: Generate kubeconfig - set cluster
   command: >
     kubectl config set-cluster {{ cluster.name }}
     --certificate-authority={{ cert_dir }}/{{ ca_cert.name }}.crt
@@ -9,7 +9,7 @@
   loop_control:
     label: "{{ item.name }}"
 
-- name: Generate {{ item.name}} kubeconfig - set credentials
+- name: Generate kubeconfig - set credentials
   command: >
     kubectl config set-credentials {{item.user }}
     --client-certificate={{ cert_dir }}/{{ item.cert}}
@@ -20,7 +20,7 @@
   loop_control:
     label: "{{ item.name }}"
 
-- name: Generate {{ item.name}} kubeconfig - set context
+- name: Generatekubeconfig - set context
   command: >
     kubectl config set-context default
     --cluster={{ cluster.name }}
@@ -30,7 +30,7 @@
   loop_control:
     label: "{{ item.name }}"
 
-- name: Generate {{ item.name}} kubeconfig - use context
+- name: Generate kubeconfig - use context
   command: >
     kubectl config use-context default
     --kubeconfig={{ kubeconfig_dir }}/{{item.file }}

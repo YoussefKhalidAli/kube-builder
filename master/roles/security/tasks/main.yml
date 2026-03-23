@@ -52,6 +52,8 @@
     privatekey_path: "{{ cert_dir }}/{{ item.name }}.key"
     common_name: "{{ item.subj.split('/CN=')[1].split('/')[0] }}"
     organization_name: "{{ item.subj.split('/O=')[1] }}"
+    extended_key_usage: "{{ item.extended_key_usage | default(omit) }}"
+    extended_key_usage_critical: "{{ item.extended_key_usage_critical | default(omit) }}"
   loop: "{{ certs }}"
   loop_control:
     label: "{{ item.name }}"
@@ -81,6 +83,17 @@
     privatekey_path: "{{ cert_dir }}/{{ kube_apiserver_cert.name }}.key"
     common_name: "kube-apiserver"
     organization_name: "Kubernetes"
+    basic_constraints:
+      - "CA:FALSE"
+    basic_constraints_critical: yes
+    key_usage:
+      - nonRepudiation
+      - digitalSignature
+      - keyEncipherment
+    key_usage_critical: yes
+    extended_key_usage:
+      - serverAuth
+    extended_key_usage_critical: yes
     subject_alt_name:
       - "DNS:kubernetes"
       - "DNS:kubernetes.default"
@@ -98,6 +111,38 @@
     ownca_path: "{{ cert_dir }}/{{ ca_cert.name }}.crt"
     ownca_privatekey_path: "{{ cert_dir }}/{{ ca_cert.name }}.key"
     ownca_not_after: "{{ apiserver_expiration }}"
+    provider: ownca
+
+# etcd certificate
+- name: Generate etcd-server private key
+  community.crypto.openssl_privatekey:
+    path: "{{ cert_dir }}/{{ etcd_cert.name }}.key"
+    size: 2048
+    type: RSA
+
+- name: Generate etcd-server CSR
+  community.crypto.openssl_csr:
+    path: "{{ cert_dir }}/{{ etcd_cert.name }}.csr"
+    privatekey_path: "{{ cert_dir }}/{{ etcd_cert.name }}.key"
+    common_name: "{{ etcd_cert.name }}"
+    organization_name: "Kubernetes"
+    basic_constraints:
+      - "CA:FALSE"
+    key_usage:
+      - nonRepudiation
+      - digitalSignature
+      - keyEncipherment
+    subject_alt_name:
+      - "IP:{{ control_plane_ip }}"
+      - "IP:127.0.0.1"
+
+- name: Sign etcd-server certificate with CA
+  community.crypto.x509_certificate:
+    path: "{{ cert_dir }}/{{ etcd_cert.name }}.crt"
+    csr_path: "{{ cert_dir }}/{{ etcd_cert.name }}.csr"
+    ownca_path: "{{ cert_dir }}/{{ ca_cert.name }}.crt"
+    ownca_privatekey_path: "{{ cert_dir }}/{{ ca_cert.name }}.key"
+    ownca_not_after: "{{ etcd_cert.expiration }}"
     provider: ownca
 
 # Set the encryption key for secrets encryption

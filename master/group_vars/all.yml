@@ -16,6 +16,10 @@ ca_cert:
   name: ca
   subj: "/CN=KUBERNETES-CA/O=Kubernetes"
 
+etcd_cert:
+  name: etcd-server
+  expiration: +1000d
+
 certs:
   - name: kube-controller-manager
     subj: "/CN=system:kube-controller-manager/O=system:kube-controller-manager"
@@ -29,6 +33,12 @@ certs:
   - name: service-account
     subj: "/CN=service-accounts/O=Kubernetes"
     expiration: +1000d
+  - name: apiserver-kubelet-client
+    subj: "/CN=kube-apiserver-kubelet-client/O=system:masters"
+    expiration: +1000d
+    extended_key_usage:
+      - clientAuth
+    extended_key_usage_critical: yes
   - name: admin
     subj: "/CN=admin/O=system:masters"
     expiration: +1000d
