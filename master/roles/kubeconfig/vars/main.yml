@@ -28,14 +28,6 @@ kubeconfigs:
     server: "127.0.0.1"
     isUser: false
 
-  - name: kube-proxy
-    user: system:kube-proxy
-    file: kube-proxy.kubeconfig
-    cert: kube-proxy.crt
-    key: kube-proxy.key
-    server: "127.0.0.1"
-    isUser: false
-
   - name: admin
     user: admin
     file: admin.kubeconfig

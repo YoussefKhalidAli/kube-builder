@@ -1,39 +1,20 @@
-- name: Generate kubeconfig - set cluster
-  command: >
-    kubectl config set-cluster {{ cluster.name }}
-    --certificate-authority={{ cert_dir }}/{{ ca_cert.name }}.crt
-    --server=https://{{ item.server }}:6443
-    --kubeconfig={{ kubeconfig_dir }}/{{item.file }}
-    {% if item.isUser %}--embed-certs=true{% endif %}
-  loop: "{{ kubeconfigs }}"
-  loop_control:
-    label: "{{ item.name }}"
+- name: Ensure kubeconfig directory exists
+  file:
+    path: "{{ kubeconfig_dir }}"
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
 
-- name: Generate kubeconfig - set credentials
-  command: >
-    kubectl config set-credentials {{item.user }}
-    --client-certificate={{ cert_dir }}/{{ item.cert}}
-    --client-key={{ cert_dir }}/{{ item.key }}
-    --kubeconfig={{ kubeconfig_dir }}/{{item.file }}
-    {% if item.isUser %}--embed-certs=true{% endif %}
-  loop: "{{ kubeconfigs }}"
-  loop_control:
-    label: "{{ item.name }}"
-
-- name: Generatekubeconfig - set context
-  command: >
-    kubectl config set-context default
-    --cluster={{ cluster.name }}
-    --user={{ item.user }}
-    --kubeconfig={{ kubeconfig_dir }}/{{ item.file }}
-  loop: "{{ kubeconfigs }}"
-  loop_control:
-    label: "{{ item.name }}"
-
-- name: Generate kubeconfig - use context
-  command: >
-    kubectl config use-context default
-    --kubeconfig={{ kubeconfig_dir }}/{{item.file }}
+- name: Generate kubeconfigs
+  template:
+    src: kubeconfig.j2
+    dest: "{{ kubeconfig_dir }}/{{ item.file }}"
+    owner: root
+    group: root
+    mode: "0600"
+  vars:
+    kubeconfig: "{{ item }}"
   loop: "{{ kubeconfigs }}"
   loop_control:
     label: "{{ item.name }}"
