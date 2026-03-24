@@ -42,8 +42,8 @@
     mode: "0600"
     remote_src: yes
   loop:
-    - etcd-server.key
-    - etcd-server.crt
+    - "{{ etcd_cert.name }}.key"
+    - "{{ etcd_cert.name }}.crt"
 
 - name: Copy CA certificate to kubernetes pki
   copy:

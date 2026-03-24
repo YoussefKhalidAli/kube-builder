@@ -1,2 +1,0 @@
-encryption_key_file: /etc/kubernetes/pki/encryption.key
-encryption_config_file: /etc/kubernetes/encryption-config.yaml

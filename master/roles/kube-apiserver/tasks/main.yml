@@ -1,0 +1,62 @@
+- name: Create kube-apiserver
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+  loop:
+    - "{{ apiserver_tmp_dir }}"
+    - "{{ apiserver_bin_dir }}"
+    - "{{ kube_pki_dir }}"
+
+- name: Download kube-apiserver
+  get_url:
+    url: "https://dl.k8s.io/release/{{ k8s_version }}/bin/linux/{{ arch }}/kube-apiserver"
+    dest: "{{ apiserver_tmp_dir }}/{{ kube_apiserver_cert.name }}"
+    mode: "0644"
+
+- name: Move kube-apiserver binary
+  copy:
+    src: "{{ apiserver_tmp_dir }}/{{ kube_apiserver_cert.name }}"
+    dest: "{{ apiserver_bin_dir }}/{{ kube_apiserver_cert.name }}"
+    mode: "0755"
+    remote_src: yes
+
+- name: Copy kube-apiserver certificates
+  copy:
+    src: "{{ cert_dir }}/{{ item }}"
+    dest: "{{ kube_pki_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: "0600"
+    remote_src: yes
+  loop:
+    - "{{ kube_apiserver_cert.name }}.crt"
+    - "{{ kube_apiserver_cert.name }}.key"
+    - "{{ ca_cert.name }}.crt"
+    - "{{ ca_cert.name }}.key"
+    - "{{ etcd_cert.name }}.crt"
+    - "{{ etcd_cert.name }}.key"
+    - service-account.crt
+    - service-account.key
+    - apiserver-kubelet-client.crt
+    - apiserver-kubelet-client.key
+
+- name: Copy encryption config
+  copy:
+    src: "{{ encryption_config_file }}"
+    dest: "{{ kube_pki_dir }}/encryption-config.yaml"
+    owner: root
+    group: root
+    mode: "0600"
+    remote_src: yes
+
+- name: Create kube-apiserver systemd service
+  template:
+    src: kube-apiserver.service.j2
+    dest: /etc/systemd/system/kube-apiserver.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart kube-apiserver

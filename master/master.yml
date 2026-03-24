@@ -9,3 +9,4 @@
     - security
     - kubeconfig
     - etcd
+    - kube-apiserver

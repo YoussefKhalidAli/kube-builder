@@ -1,0 +1,20 @@
+apiserver_bin_dir: /usr/local/bin
+apiserver_tmp_dir: /tmp
+kube_pki_dir: /var/lib/kubernetes/pki
+
+# kube-apiserver service configuration
+apiserver_allow_privileged: "true"
+apiserver_count: 1
+apiserver_audit_log_maxage: 30
+apiserver_audit_log_maxbackup: 3
+apiserver_audit_log_maxsize: 100
+apiserver_audit_log_path: /var/log/audit.log
+apiserver_authorization_mode: "Node,RBAC"
+apiserver_bind_address: "0.0.0.0"
+apiserver_admission_plugins: "NodeRestriction,ServiceAccount"
+apiserver_bootstrap_token_auth: "true"
+apiserver_etcd_servers: "https://{{ control_plane_ip }}:2379"
+apiserver_event_ttl: "1h"
+apiserver_runtime_config: "api/all=true"
+apiserver_service_node_port_range: "30000-32767"
+apiserver_log_level: 2

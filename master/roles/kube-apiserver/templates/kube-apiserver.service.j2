@@ -1,0 +1,41 @@
+[Unit]
+Description=Kubernetes API Server
+Documentation=https://github.com/kubernetes/kubernetes
+
+[Service]
+ExecStart={{ apiserver_bin_dir }}/kube-apiserver \
+  --advertise-address={{ control_plane_ip }} \
+  --allow-privileged={{ apiserver_allow_privileged }} \
+  --apiserver-count={{ apiserver_count }} \
+  --audit-log-maxage={{ apiserver_audit_log_maxage }} \
+  --audit-log-maxbackup={{ apiserver_audit_log_maxbackup }} \
+  --audit-log-maxsize={{ apiserver_audit_log_maxsize }} \
+  --audit-log-path={{ apiserver_audit_log_path }} \
+  --authorization-mode={{ apiserver_authorization_mode }} \
+  --bind-address={{ apiserver_bind_address }} \
+  --client-ca-file={{ kube_pki_dir }}/{{ ca_cert.name }}.crt \
+  --enable-admission-plugins={{ apiserver_admission_plugins }} \
+  --enable-bootstrap-token-auth={{ apiserver_bootstrap_token_auth }} \
+  --etcd-cafile={{ kube_pki_dir }}/{{ ca_cert.name }}.crt \
+  --etcd-certfile={{ kube_pki_dir }}/{{ etcd_cert.name }}.crt \
+  --etcd-keyfile={{ kube_pki_dir }}/{{ etcd_cert.name }}.key \
+  --etcd-servers={{ apiserver_etcd_servers }} \
+  --event-ttl={{ apiserver_event_ttl }} \
+  --encryption-provider-config={{ kube_pki_dir }}/encryption-config.yaml \
+  --kubelet-certificate-authority={{ kube_pki_dir }}/{{ ca_cert.name }}.crt \
+  --kubelet-client-certificate={{ kube_pki_dir }}/apiserver-kubelet-client.crt \
+  --kubelet-client-key={{ kube_pki_dir }}/apiserver-kubelet-client.key \
+  --runtime-config={{ apiserver_runtime_config }} \
+  --service-account-key-file={{ kube_pki_dir }}/service-account.crt \
+  --service-account-signing-key-file={{ kube_pki_dir }}/service-account.key \
+  --service-account-issuer=https://{{ control_plane_ip }}:6443 \
+  --service-cluster-ip-range={{ service_cidr }} \
+  --service-node-port-range={{ apiserver_service_node_port_range }} \
+  --tls-cert-file={{ kube_pki_dir }}/{{ kube_apiserver_cert.name }}.crt \
+  --tls-private-key-file={{ kube_pki_dir }}/{{ kube_apiserver_cert.name }}.key \
+  --v={{ apiserver_log_level }}
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

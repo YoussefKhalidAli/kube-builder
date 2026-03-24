@@ -1,12 +1,6 @@
 etcd_version: "v3.5.9"
 etcd_name: "{{ ansible_hostname }}"
 
-arch_map:
-  x86_64: amd64
-  aarch64: arm64
-
-arch: "{{ arch_map[ansible_architecture] }}"
-
 etcd_bin_dir: /usr/local/bin
 etcd_data_dir: /var/lib/etcd
 etcd_tmp_dir: /tmp

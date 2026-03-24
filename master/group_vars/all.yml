@@ -4,6 +4,16 @@ service_cidr: "10.96.0.0/12"
 api_service_ip: "{{ service_cidr.split('.')[0] }}.{{ service_cidr.split('.')[1] }}.{{ service_cidr.split('.')[2] }}.1"
 control_plane_ip: "{{ ansible_default_ipv4.address | default('172.25.0.10')}}" # Remove default when running on actual host
 
+arch_map:
+  x86_64: amd64
+  aarch64: arm64
+
+arch: "{{ arch_map[ansible_architecture] }}"
+
+# Encryption configuration
+encryption_key_file: /etc/kubernetes/pki/encryption.key
+encryption_config_file: /etc/kubernetes/encryption-config.yaml
+
 # Certificates
 cert_dir: /etc/kubernetes/pki
 ca_expiration: +1000d
