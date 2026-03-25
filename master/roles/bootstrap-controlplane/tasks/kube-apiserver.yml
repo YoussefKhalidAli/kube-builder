@@ -1,4 +1,4 @@
-- name: Load all cert vars
+- name: Load kube-apiserver vars
   include_vars: "{{ role_path }}/vars/kube-apiserver.yml"
 
 - name: Create kube-apiserver

@@ -18,3 +18,5 @@ apiserver_event_ttl: "1h"
 apiserver_runtime_config: "api/all=true"
 apiserver_service_node_port_range: "30000-32767"
 apiserver_log_level: 2
+restart: "on-failure"
+restart_sec: 5

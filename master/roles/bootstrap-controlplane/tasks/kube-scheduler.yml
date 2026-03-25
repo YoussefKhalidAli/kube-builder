@@ -1,4 +1,4 @@
-- name: Load all cert vars
+- name: Load kube-scheduler and kubeconfig vars
   include_vars: "{{ item }}"
   loop:
     - "{{ role_path }}/vars/kube-scheduler.yml"

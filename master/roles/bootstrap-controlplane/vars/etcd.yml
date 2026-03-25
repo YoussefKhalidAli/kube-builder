@@ -5,3 +5,11 @@ etcd_bin_dir: /usr/local/bin
 etcd_data_dir: /var/lib/etcd
 etcd_tmp_dir: /tmp
 kube_pki_dir: /var/lib/kubernetes/pki
+
+# etcd service parameters
+restart: "on-failure"
+restart_sec: 5
+initial_cluster_state: "new"
+initial_cluster_token: "etcd-cluster-0"
+client_auths: "--client-cert-auth"
+peer_auths: "--peer-client-cert-auth"

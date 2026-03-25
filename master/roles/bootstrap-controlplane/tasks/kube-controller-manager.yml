@@ -1,4 +1,4 @@
-- name: Load all cert vars
+- name: Load kube-controller-manager and kubeconfig vars
   include_vars: "{{ item }}"
   loop:
     - "{{ role_path }}/vars/kube-controller-manager.yml"

@@ -34,8 +34,8 @@ ExecStart={{ apiserver_bin_dir }}/kube-apiserver \
   --tls-cert-file={{ kube_pki_dir }}/{{ kube_apiserver_cert.name }}.crt \
   --tls-private-key-file={{ kube_pki_dir }}/{{ kube_apiserver_cert.name }}.key \
   --v={{ apiserver_log_level }}
-Restart=on-failure
-RestartSec=5
+Restart={{ restart }}
+RestartSec={{ restart_sec }}
 
 [Install]
 WantedBy=multi-user.target

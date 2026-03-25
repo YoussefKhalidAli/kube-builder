@@ -11,18 +11,18 @@ ExecStart={{ etcd_bin_dir }}/etcd \
   --peer-key-file=/etc/etcd/{{ etcd_cert.name }}.key \
   --trusted-ca-file=/etc/etcd/{{ ca_cert.name }}.crt \
   --peer-trusted-ca-file=/etc/etcd/{{ ca_cert.name }}.crt \
-  --peer-client-cert-auth \
-  --client-cert-auth \
+  {{ peer_auths | default('') }} \
+  {{ client_auths | default('') }} \
   --initial-advertise-peer-urls https://{{ control_plane_ip }}:2380 \
   --listen-peer-urls https://{{ control_plane_ip }}:2380 \
   --listen-client-urls https://{{ control_plane_ip }}:2379,https://127.0.0.1:2379 \
   --advertise-client-urls https://{{ control_plane_ip }}:2379 \
-  --initial-cluster-token etcd-cluster-0 \
+  --initial-cluster-token {{ initial_cluster_token }} \
   --initial-cluster {{ etcd_name }}=https://{{ control_plane_ip }}:2380 \
-  --initial-cluster-state new \
+  --initial-cluster-state {{ initial_cluster_state }} \
   --data-dir={{ etcd_data_dir }}
-Restart=on-failure
-RestartSec=5
+Restart={{ restart }}
+RestartSec={{ restart_sec }}
 
 [Install]
 WantedBy=multi-user.target
