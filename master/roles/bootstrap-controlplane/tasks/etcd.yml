@@ -1,3 +1,6 @@
+- name: Load all cert vars
+  include_vars: "{{ role_path }}/vars/etcd.yml"
+
 - name: Create etcd and kubernetes directories
   file:
     path: "{{ item }}"

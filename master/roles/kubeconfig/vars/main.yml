@@ -4,7 +4,8 @@ kubeconfig_dir: /var/lib/kubernetes
 loadbalancer: "{{ ansible_default_ipv4.address | default('127.0.0.1') }}"
 
 kubeconfigs:
-  - name: kube-proxy
+  kube_proxy:
+    name: kube-proxy
     user: system:kube-proxy
     file: kube-proxy.kubeconfig
     cert: kube-proxy.crt
@@ -12,7 +13,8 @@ kubeconfigs:
     server: "{{ ansible_default_ipv4.address | default('127.0.0.1') }}"
     isUser: false
 
-  - name: kube-scheduler
+  kube_scheduler:
+    name: kube-scheduler
     user: system:kube-scheduler
     file: kube-scheduler.kubeconfig
     cert: kube-scheduler.crt
@@ -20,7 +22,8 @@ kubeconfigs:
     server: "127.0.0.1"
     isUser: false
 
-  - name: kube-controller-manager
+  kube_controller_manager:
+    name: kube-controller-manager
     user: system:kube-controller-manager
     file: kube-controller-manager.kubeconfig
     cert: kube-controller-manager.crt
@@ -28,7 +31,8 @@ kubeconfigs:
     server: "127.0.0.1"
     isUser: false
 
-  - name: admin
+  admin:
+    name: admin
     user: admin
     file: admin.kubeconfig
     cert: admin.crt

@@ -1,0 +1,13 @@
+kube_controller_manager_bin_dir: /usr/local/bin
+kube_controller_manager_tmp_dir: /tmp
+kube_pki_dir: /var/lib/kubernetes/pki
+
+# kube-apiserver service configuration
+allocate_node_cidrs: "true"
+controllers: "*,bootstrapsigner,tokencleaner"
+leader_elect: "true"
+use_service_account_credentials: "true"
+restart: "on_failure"
+restart_sec: 5
+bind_address: "127.0.0.1"
+node_cidr_mask_size: 24

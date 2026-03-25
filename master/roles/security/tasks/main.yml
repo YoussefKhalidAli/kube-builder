@@ -34,41 +34,40 @@
     selfsigned_create_subject_key_identifier: always_create
     selfsigned_not_after: "{{ ca_expiration }}"
     unsafe_writes: yes
-    force: yes
 
 # Other certs
 - name: Generate private keys for all other certs
   community.crypto.openssl_privatekey:
-    path: "{{ cert_dir }}/{{ item.name }}.key"
+    path: "{{ cert_dir }}/{{ item.value.name }}.key"
     size: 2048
     type: RSA
-  loop: "{{ certs }}"
+  loop: "{{ certs | dict2items }}"
   loop_control:
-    label: "{{ item.name }}"
+    label: "{{ item.key }}"
 
 - name: Generate CSRs for all other certs
   community.crypto.openssl_csr:
-    path: "{{ cert_dir }}/{{ item.name }}.csr"
-    privatekey_path: "{{ cert_dir }}/{{ item.name }}.key"
-    common_name: "{{ item.subj.split('/CN=')[1].split('/')[0] }}"
-    organization_name: "{{ item.subj.split('/O=')[1] }}"
-    extended_key_usage: "{{ item.extended_key_usage | default(omit) }}"
-    extended_key_usage_critical: "{{ item.extended_key_usage_critical | default(omit) }}"
-  loop: "{{ certs }}"
+    path: "{{ cert_dir }}/{{ item.value.name }}.csr"
+    privatekey_path: "{{ cert_dir }}/{{ item.value.name }}.key"
+    common_name: "{{ item.value.subj.split('/CN=')[1].split('/')[0] }}"
+    organization_name: "{{ item.value.subj.split('/O=')[1] }}"
+    extended_key_usage: "{{ item.value.extended_key_usage | default(omit) }}"
+    extended_key_usage_critical: "{{ item.value.extended_key_usage_critical | default(omit) }}"
+  loop: "{{ certs | dict2items}}"
   loop_control:
-    label: "{{ item.name }}"
+    label: "{{ item.key }}"
 
 - name: Sign all certificates with CA
   community.crypto.x509_certificate:
-    path: "{{ cert_dir }}/{{ item.name }}.crt"
-    csr_path: "{{ cert_dir }}/{{ item.name }}.csr"
+    path: "{{ cert_dir }}/{{ item.value.name }}.crt"
+    csr_path: "{{ cert_dir }}/{{ item.value.name }}.csr"
     ownca_path: "{{ cert_dir }}/{{ ca_cert.name }}.crt"
     ownca_privatekey_path: "{{ cert_dir }}/{{ ca_cert.name }}.key"
-    ownca_not_after: "{{ item.expiration }}"
+    ownca_not_after: "{{ item.value.expiration }}"
     provider: ownca
-  loop: "{{ certs }}"
+  loop: "{{ certs | dict2items}}"
   loop_control:
-    label: "{{ item.name }}"
+    label: "{{ item.key }}"
 
 # Kube-apiserver certificate
 - name: Generate kube-apiserver private key

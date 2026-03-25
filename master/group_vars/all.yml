@@ -31,24 +31,35 @@ etcd_cert:
   expiration: +1000d
 
 certs:
-  - name: kube-controller-manager
+  kube_controller_manager:
+    name: kube-controller-manager
     subj: "/CN=system:kube-controller-manager/O=system:kube-controller-manager"
     expiration: +1000d
-  - name: kube-scheduler
+
+  kube_scheduler:
+    name: kube-scheduler
     subj: "/CN=system:kube-scheduler/O=system:kube-scheduler"
     expiration: +1000d
-  - name: kube-proxy
+
+  kube_proxy:
+    name: kube-proxy
     subj: "/CN=system:kube-proxy/O=system:node-proxier"
     expiration: +1000d
-  - name: service-account
+
+  service_account:
+    name: service-account
     subj: "/CN=service-accounts/O=Kubernetes"
     expiration: +1000d
-  - name: apiserver-kubelet-client
+
+  apiserver_kubelet_client:
+    name: apiserver-kubelet-client
     subj: "/CN=kube-apiserver-kubelet-client/O=system:masters"
     expiration: +1000d
     extended_key_usage:
       - clientAuth
     extended_key_usage_critical: yes
-  - name: admin
+
+  admin:
+    name: admin
     subj: "/CN=admin/O=system:masters"
     expiration: +1000d

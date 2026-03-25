@@ -2,3 +2,5 @@ master/Dockerfile
 inventory/hosts.ini
 ansible_key
 ansible_key.pub
+validate.txt
+todo

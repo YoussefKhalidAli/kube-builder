@@ -8,5 +8,4 @@
     - client-tools
     - security
     - kubeconfig
-    - etcd
-    - kube-apiserver
+    - bootstrap-controlplane
