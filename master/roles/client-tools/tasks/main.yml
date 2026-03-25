@@ -38,13 +38,13 @@
 - block:
     - name: Download kubectl binary
       get_url:
-        url: "https://dl.k8s.io/release/{{ k8s_version }}/bin/linux/amd64/kubectl"
+        url: "https://dl.k8s.io/release/{{ k8s_version }}/bin/linux/{{ arch }}/kubectl"
         dest: /tmp/kubectl
         mode: "0755"
 
     - name: Download kubectl checksum
       get_url:
-        url: "https://dl.k8s.io/release/{{ k8s_version }}/bin/linux/amd64/kubectl.sha256"
+        url: "https://dl.k8s.io/release/{{ k8s_version }}/bin/linux/{{ arch }}/kubectl.sha256"
         dest: /tmp/kubectl.sha256
 
     - name: Verify kubectl checksum

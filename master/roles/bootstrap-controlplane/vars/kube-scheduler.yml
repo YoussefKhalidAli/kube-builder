@@ -1,0 +1,8 @@
+kube_scheduler_bin_dir: /usr/local/bin
+kube_scheduler_tmp_dir: /tmp
+kube_pki_dir: /var/lib/kubernetes/pki
+
+# kube-scheduler service configuration
+leader_elect: "true"
+restart: "on_failure"
+restart_sec: 5

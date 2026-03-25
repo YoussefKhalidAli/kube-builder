@@ -2,7 +2,7 @@ kube_controller_manager_bin_dir: /usr/local/bin
 kube_controller_manager_tmp_dir: /tmp
 kube_pki_dir: /var/lib/kubernetes/pki
 
-# kube-apiserver service configuration
+# kube-controller-manager service configuration
 allocate_node_cidrs: "true"
 controllers: "*,bootstrapsigner,tokencleaner"
 leader_elect: "true"

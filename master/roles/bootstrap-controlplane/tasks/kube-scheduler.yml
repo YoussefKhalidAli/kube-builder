@@ -1,0 +1,61 @@
+- name: Load all cert vars
+  include_vars: "{{ item }}"
+  loop:
+    - "{{ role_path }}/vars/kube-scheduler.yml"
+    - "{{ playbook_dir }}/roles/kubeconfig/vars/main.yml"
+
+- name: Create kube-scheduler directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+  loop:
+    - "{{ kube_scheduler_tmp_dir }}"
+    - "{{ kube_scheduler_bin_dir }}"
+    - "{{ kube_pki_dir }}"
+
+- name: Download kube-scheduler
+  get_url:
+    url: "https://dl.k8s.io/release/{{ k8s_version }}/bin/linux/{{ arch }}/kube-scheduler"
+    dest: "{{ kube_scheduler_tmp_dir }}/{{ certs.kube_scheduler.name }}"
+    mode: "0644"
+
+- name: Move kube-scheduler binary
+  copy:
+    src: "{{ kube_scheduler_tmp_dir }}/{{ certs.kube_scheduler.name }}"
+    dest: "{{ kube_scheduler_bin_dir }}/{{ certs.kube_scheduler.name }}"
+    mode: "0755"
+    remote_src: yes
+
+- name: Copy kube-scheduler certificates
+  copy:
+    src: "{{ cert_dir }}/{{ item }}"
+    dest: "{{ kube_pki_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: "0600"
+    remote_src: yes
+  loop:
+    - "{{ certs.kube_scheduler.name }}.crt"
+    - "{{ certs.kube_scheduler.name }}.key"
+    - "{{ ca_cert.name }}.crt"
+    - "{{ ca_cert.name }}.key"
+    - "{{ etcd_cert.name }}.crt"
+    - "{{ etcd_cert.name }}.key"
+    - "{{ certs.admin.name }}.crt"
+    - "{{ certs.admin.name }}.key"
+    - service-account.crt
+    - service-account.key
+    - apiserver-kubelet-client.crt
+    - apiserver-kubelet-client.key
+
+- name: Create kube-scheduler systemd service
+  template:
+    src: kube-scheduler.service.j2
+    dest: /etc/systemd/system/kube-scheduler.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart kube-scheduler
