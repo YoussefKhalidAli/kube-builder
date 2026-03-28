@@ -1,5 +1,5 @@
 apiserver_bin_dir: /usr/local/bin
-apiserver_tmp_dir: /tmp
+apiserver_tmp_dir: /root/tmp
 kube_pki_dir: /var/lib/kubernetes/pki
 
 # kube-apiserver service configuration

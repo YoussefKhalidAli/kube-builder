@@ -1,0 +1,154 @@
+---
+# Install kmod first so modprobe is available
+- name: Install required packages
+  apt:
+    name:
+      - "kmod"
+      - "gpg"
+      - "linux-modules-{{ ansible_kernel }}"
+    state: present
+    update_cache: yes
+
+- name: Ensure kernel modules config file exists
+  copy:
+    dest: /etc/modules-load.d/k8s.conf
+    content: |
+      overlay
+      br_netfilter
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Load overlay module
+  community.general.modprobe:
+    name: overlay
+    state: present
+
+- name: Load br_netfilter module
+  community.general.modprobe:
+    name: br_netfilter
+    state: present
+
+# Sysctl settings
+- name: Ensure sysctl params are set
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: yes
+  loop:
+    - { name: "net.bridge.bridge-nf-call-iptables", value: "1" }
+    - { name: "net.bridge.bridge-nf-call-ip6tables", value: "1" }
+    - { name: "net.ipv4.ip_forward", value: "1" }
+
+- name: Set Kubernetes repo version (major.minor)
+  set_fact:
+    kube_repo_version: "{{ k8s_version.split('.')[0] }}.{{ k8s_version.split('.')[1] }}"
+
+- name: Create apt keyrings directory
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+- name: Ensure /root/tmp exists for temporary files
+  file:
+    path: /root/tmp
+    state: directory
+    mode: "1777"
+    owner: root
+    group: root
+
+# Download and install kubernetes packages
+- name: Download Kubernetes apt key
+  get_url:
+    url: "{{ cri_options.containerd.url }}Release.key"
+    dest: /root/tmp/kubernetes-release.key
+    mode: "0644"
+
+- name: Convert Kubernetes key to gpg format
+  command: >
+    gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /root/tmp/kubernetes-release.key
+  args:
+    creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+- name: Add Kubernetes APT repository
+  copy:
+    dest: /etc/apt/sources.list.d/kubernetes.list
+    content: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] \
+      {{ cri_options.containerd.url }} /"
+    owner: root
+    group: root
+    mode: "0644"
+
+# Download and install cri packages if not containerd
+- name: Download and install CRI apt key
+  shell: |
+    curl -fsSL {{ cri.url }}Release.key | gpg --dearmor -o /etc/apt/keyrings/cri-apt-keyring.gpg
+  args:
+    creates: /etc/apt/keyrings/cri-apt-keyring.gpg
+  when: cri.package != "containerd"
+
+- name: Convert key to gpg format
+  command: >
+    gpg --dearmor -o /etc/apt/keyrings/cri-apt-keyring.gpg /root/tmp/cri-release.key
+  args:
+    creates: /etc/apt/keyrings/cri-apt-keyring.gpg
+  when: cri.package != "containerd"
+
+- name: Add cri APT repository
+  copy:
+    dest: /etc/apt/sources.list.d/{{ cri.list }}.list
+    content: "deb [signed-by=/etc/apt/keyrings/cri-apt-keyring.gpg] \
+      {{ cri.url }} /"
+    owner: root
+    group: root
+    mode: "0644"
+  when: cri.package != "containerd"
+
+- name: Install remaining required packages
+  apt:
+    name:
+      - "{{ cri.package }}"
+      - kubernetes-cni
+      - kubectl
+      - ipvsadm
+      - ipset
+    state: present
+    update_cache: yes
+
+- name: Install crio-tools if using cri-o
+  apt:
+    name: cri-tools
+    state: present
+    update_cache: yes
+  when: cri.package == "cri-o"
+
+- name: Ensure /etc/containerd exists
+  file:
+    path: /etc/containerd
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  when: cri.package == "containerd"
+
+- name: Generate default containerd config
+  command: containerd config default
+  register: containerd_default_config
+  changed_when: false
+  when: cri.package == "containerd"
+
+- name: Set SystemdCgroup = true in containerd config
+  copy:
+    dest: /etc/containerd/config.toml
+    content: "{{ containerd_default_config.stdout | regex_replace('SystemdCgroup = false', 'SystemdCgroup = true') }}"
+    owner: root
+    group: root
+    mode: "0644"
+  when: cri.package == "containerd"
+
+- name: Verify kubectl installation
+  command: kubectl version --client
+  register: kubectl_version
+  notify: Restart cri-service

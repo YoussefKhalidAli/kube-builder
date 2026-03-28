@@ -39,24 +39,24 @@
     - name: Download kubectl binary
       get_url:
         url: "https://dl.k8s.io/release/{{ k8s_version }}/bin/linux/{{ arch }}/kubectl"
-        dest: /tmp/kubectl
+        dest: /root/tmp/kubectl
         mode: "0755"
 
     - name: Download kubectl checksum
       get_url:
         url: "https://dl.k8s.io/release/{{ k8s_version }}/bin/linux/{{ arch }}/kubectl.sha256"
-        dest: /tmp/kubectl.sha256
+        dest: /root/tmp/kubectl.sha256
 
     - name: Verify kubectl checksum
       shell: |
-        echo "$(cat /tmp/kubectl.sha256)  /tmp/kubectl" | sha256sum --check
+        echo "$(cat /root/tmp/kubectl.sha256)  /root/tmp/kubectl" | sha256sum --check
       register: checksum_result
       changed_when: false
       failed_when: "'OK' not in checksum_result.stdout"
 
     - name: Install kubectl
       copy:
-        src: /tmp/kubectl
+        src: /root/tmp/kubectl
         dest: /usr/local/bin/kubectl
         mode: "0755"
         owner: root

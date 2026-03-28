@@ -1,9 +1,18 @@
 ---
+- name: Ensure /root/tmp exists for temporary files
+  file:
+    path: /root/tmp
+    state: directory
+    mode: "1777"
+    owner: root
+    group: root
+
 - name: Install required packages
   apt:
     name:
       - "openssl"
       - "curl"
+      - "apt-transport-https"
+      - "ca-certificates"
     state: present
-    #update_cache: yes
-  become: yes
+    update_cache: yes

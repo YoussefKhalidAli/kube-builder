@@ -9,3 +9,4 @@
     - security
     - kubeconfig
     - bootstrap-controlplane
+    - cri

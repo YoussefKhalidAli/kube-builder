@@ -1,0 +1,6 @@
+- name: Restart cri-service
+  systemd:
+    name: "{{ cri.service }}"
+    state: restarted
+    daemon_reload: yes
+    enabled: yes

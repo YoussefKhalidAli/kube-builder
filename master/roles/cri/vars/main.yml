@@ -1,0 +1,13 @@
+cri_options:
+  containerd:
+    url: "https://pkgs.k8s.io/core:/stable:/{{ kube_repo_version }}/deb/"
+    list: "kubernetes"
+    package: containerd
+    service: containerd
+  cri_o:
+    url: "https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ kube_repo_version }}/deb/"
+    list: "cri-o"
+    package: cri-o
+    service: crio
+
+cri: "{{ cri_options.containerd }}"
