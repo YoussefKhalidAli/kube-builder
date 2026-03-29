@@ -1,0 +1,7 @@
+kube_proxy_bin_dir: /usr/local/bin
+kube_proxy_tmp_dir: /root/tmp
+kube_proxy_config_dir: /var/lib/kube-proxy
+
+# kube-proxy service configuration
+restart: "on-failure"
+restart_sec: 5

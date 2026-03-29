@@ -7,3 +7,5 @@
 # - import_tasks: kube-scheduler.yml
 
 - import_tasks: kubelete.yml
+
+- import_tasks: kube-proxy.yml

@@ -7,6 +7,9 @@
     - "{{ cert_dir }}/{{ worker_hostname }}.crt"
     - "{{ cert_dir }}/{{ worker_hostname }}.key"
     - "{{ kubeconfig_dir }}/{{ worker_hostname }}.kubeconfig"
+    - "{{ kubeconfig_dir }}/{{ kubeconfigs.kube_proxy.file }}"
+    - "{{ cert_dir }}/{{ certs.kube_proxy.name }}.crt"
+    - "{{ cert_dir }}/{{ certs.kube_proxy.name }}.key"
   delegate_to: 172.25.0.10
 
 - name: Write certs to worker
