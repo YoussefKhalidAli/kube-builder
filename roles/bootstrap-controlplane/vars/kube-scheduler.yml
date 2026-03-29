@@ -1,6 +1,5 @@
 kube_scheduler_bin_dir: /usr/local/bin
 kube_scheduler_tmp_dir: /root/tmp
-kube_pki_dir: /var/lib/kubernetes/pki
 
 # kube-scheduler service configuration
 leader_elect: "true"

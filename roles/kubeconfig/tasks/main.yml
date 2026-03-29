@@ -1,15 +1,7 @@
-- name: Ensure kubeconfig directory exists
-  file:
-    path: "{{ kubeconfig_dir }}"
-    state: directory
-    mode: "0755"
-    owner: root
-    group: root
-
 - name: Generate kubeconfigs
   template:
     src: kubeconfig.j2
-    dest: "{{ kubeconfig_dir }}/{{ item.value.file }}"
+    dest: "{{ kubeconfig_dir }}/{{ kubeconfig.file }}"
     owner: root
     group: root
     mode: "0600"
@@ -18,3 +10,6 @@
   loop: "{{ kubeconfigs | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
+
+- include_tasks: workers.yml
+  when: worker_certs is defined

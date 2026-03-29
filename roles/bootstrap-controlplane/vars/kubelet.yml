@@ -1,0 +1,16 @@
+kubelet_bin_dir: /usr/local/bin
+kubelet_tmp_dir: /root/tmp
+kubelet_config_dir: /var/lib/kubelet
+
+name: kubelet
+
+# kubelet configuration
+container_runtime_endpoint: "{{ cri.socket }}"
+cgroup_driver: "systemd"
+resolv_conf: "/run/systemd/resolve/resolv.conf"
+kubelet_runtime_request_timeout: "15m"
+cluster_dns: "{{ service_cidr.split('.')[0] }}.{{ service_cidr.split('.')[1] }}.{{ service_cidr.split('.')[2] }}.10"
+
+# kubelet service configuration
+restart: "on-failure"
+restart_sec: 5

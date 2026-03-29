@@ -4,7 +4,6 @@ etcd_name: "{{ ansible_hostname }}"
 etcd_bin_dir: /usr/local/bin
 etcd_data_dir: /var/lib/etcd
 etcd_tmp_dir: /root/tmp
-kube_pki_dir: /var/lib/kubernetes/pki
 
 # etcd service parameters
 restart: "on-failure"

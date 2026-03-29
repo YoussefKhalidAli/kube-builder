@@ -9,6 +9,11 @@ arch_map:
 
 arch: "{{ arch_map[ansible_architecture] }}"
 
+worker_hostname: "worker1"
+
+master_ip: 172.25.0.10
+worker_ip: 172.25.0.11
+
 # Encryption configuration
 encryption_key_file: /etc/kubernetes/pki/encryption.key
 encryption_config_file: /etc/kubernetes/encryption-config.yaml
@@ -61,4 +66,9 @@ certs:
   admin:
     name: admin
     subj: "/CN=admin/O=system:masters"
+    expiration: +1000d
+
+worker_certs:
+  - name: worker1
+    ip: 172.25.0.11
     expiration: +1000d

@@ -1,9 +1,3 @@
-- name: Ensure certificate directory exists
-  file:
-    path: "{{ cert_dir }}"
-    state: directory
-    mode: "0755"
-
 # CA certificate
 - name: Generate CA private key
   community.crypto.openssl_privatekey:
@@ -171,3 +165,6 @@
     src: encryption-config.yaml.j2
     dest: "{{ encryption_config_file }}"
     mode: "0600"
+
+- include_tasks: workers.yml
+  when: worker_certs is defined

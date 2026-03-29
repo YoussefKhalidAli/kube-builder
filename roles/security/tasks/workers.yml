@@ -1,0 +1,29 @@
+- name: Generate private keys for workers
+  community.crypto.openssl_privatekey:
+    path: "{{ cert_dir }}/{{ item.name }}.key"
+    size: 2048
+    type: RSA
+  loop: "{{ worker_certs }}"
+
+- name: Generate CSRs for workers
+  community.crypto.openssl_csr:
+    path: "{{ cert_dir }}/{{ item.name }}.csr"
+    privatekey_path: "{{ cert_dir }}/{{ item.name }}.key"
+    subject:
+      commonName: "system:node:{{ item.name }}"
+      organizationName: "system:nodes"
+    use_common_name_for_san: false
+    subject_alt_name:
+      - "DNS:{{ item.name }}"
+      - "IP:{{ item.ip }}"
+  loop: "{{ worker_certs }}"
+
+- name: Sign worker certificates
+  community.crypto.x509_certificate:
+    path: "{{ cert_dir }}/{{ item.name }}.crt"
+    csr_path: "{{ cert_dir }}/{{ item.name }}.csr"
+    ownca_path: "{{ cert_dir }}/{{ ca_cert.name }}.crt"
+    ownca_privatekey_path: "{{ cert_dir }}/{{ ca_cert.name }}.key"
+    provider: ownca
+    ownca_not_after: "{{ item.expiration }}"
+  loop: "{{ worker_certs }}"

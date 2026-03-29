@@ -1,0 +1,19 @@
+- name: Read certs from master
+  slurp:
+    src: "{{ item }}"
+  register: certs_content
+  loop:
+    - "{{ cert_dir }}/{{ ca_cert.name }}.crt"
+    - "{{ cert_dir }}/{{ worker_hostname }}.crt"
+    - "{{ cert_dir }}/{{ worker_hostname }}.key"
+    - "{{ kubeconfig_dir }}/{{ worker_hostname }}.kubeconfig"
+  delegate_to: 172.25.0.10
+
+- name: Write certs to worker
+  copy:
+    dest: "{{ kubeconfig_dir if item.item.endswith('.kubeconfig') else cert_dir }}/{{ item.item | basename }}"
+    content: "{{ item.content | b64decode }}"
+    owner: root
+    group: root
+    mode: "0600"
+  loop: "{{ certs_content.results }}"

@@ -1,11 +1,17 @@
----
-- name: Ensure /root/tmp exists for temporary files
+- include_vars: "{{ playbook_dir }}/roles/bootstrap-controlplane/vars/main.yml"
+
+- name: Ensure required directories exist
   file:
-    path: /root/tmp
+    path: "{{ item.path }}"
     state: directory
-    mode: "1777"
+    mode: "{{ item.mode }}"
     owner: root
     group: root
+  loop:
+    - { path: "/root/tmp", mode: "1777" }
+    - { path: "{{ cert_dir }}", mode: "0755" }
+    - { path: "{{ kubeconfig_dir }}", mode: "0755" }
+    - { path: "{{ kube_pki_dir }}", mode: "0755" }
 
 - name: Install required packages
   apt:

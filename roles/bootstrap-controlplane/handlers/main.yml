@@ -25,3 +25,10 @@
     state: restarted
     daemon_reload: yes
     enabled: yes
+
+- name: Restart kubelet
+  systemd:
+    name: kubelet
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
