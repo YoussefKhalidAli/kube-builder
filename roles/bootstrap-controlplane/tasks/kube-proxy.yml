@@ -1,0 +1,49 @@
+- name: Load kube-proxy and kubeconfig vars
+  include_vars: "{{ item }}"
+  loop:
+    - "{{ role_path }}/vars/kube-proxy.yml"
+    - "{{ playbook_dir }}/roles/kubeconfig/vars/main.yml"
+
+- name: Create kube-proxy directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+  loop:
+    - "{{ kube_proxy_tmp_dir }}"
+    - "{{ kube_proxy_bin_dir }}"
+    - "{{ kube_pki_dir }}"
+    - "{{ kube_proxy_config_dir }}"
+
+- name: Download kube-proxy
+  get_url:
+    url: "https://dl.k8s.io/release/{{ k8s_version }}/bin/linux/{{ arch }}/kube-proxy"
+    dest: "{{ kube_proxy_tmp_dir }}/{{ certs.kube_proxy.name }}"
+    mode: "0644"
+
+- name: Move kube-proxy binary
+  copy:
+    src: "{{ kube_proxy_tmp_dir }}/{{ certs.kube_proxy.name }}"
+    dest: "{{ kube_proxy_bin_dir }}/{{ certs.kube_proxy.name }}"
+    mode: "0755"
+    remote_src: yes
+
+- name: Create kube-proxy config file
+  template:
+    src: kube-proxy-config.yml.j2
+    dest: "{{ kube_proxy_config_dir }}/kube-proxy-config.yaml"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart kubelet
+
+- name: Create kube-proxy systemd service
+  template:
+    src: kube-proxy.service.j2
+    dest: /etc/systemd/system/kube-proxy.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart kube-proxy
