@@ -1,0 +1,17 @@
+[Unit]
+Description=Kubernetes Kubelet
+Documentation=https://github.com/kubernetes/kubernetes
+After={{ cri.service }}.service
+Requires={{ cri.service }}.service
+
+[Service]
+ExecStart={{ kubelet_bin_dir }}/{{ name }} \
+  --config={{ kubelet_config_dir }}/kubelet-config.yaml \
+  --kubeconfig={{ kubeconfig_dir }}/{{ worker_hostname }}.kubeconfig \
+  --node-ip={{ ansible_default_ipv4.address }} \
+  --v=2
+Restart={{ restart }}
+RestartSec={{ restart_sec }}
+
+[Install]
+WantedBy=multi-user.target
