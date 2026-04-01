@@ -1,5 +1,5 @@
 - name: Set up Kubernetes Master
-  hosts: test
+  hosts: master
   gather_facts: yes
   become: yes
 
@@ -10,3 +10,4 @@
     - kubeconfig
     - bootstrap-controlplane
     - cri
+    - prepare-tls-bootstrap-workers

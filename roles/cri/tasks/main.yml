@@ -51,24 +51,16 @@
     state: directory
     mode: "0755"
 
-- name: Ensure /root/tmp exists for temporary files
-  file:
-    path: /root/tmp
-    state: directory
-    mode: "1777"
-    owner: root
-    group: root
-
 # Download and install kubernetes packages
 - name: Download Kubernetes apt key
   get_url:
     url: "{{ cri_options.containerd.url }}Release.key"
-    dest: /root/tmp/kubernetes-release.key
+    dest: /kube_builder/tmp/kubernetes-release.key
     mode: "0644"
 
 - name: Convert Kubernetes key to gpg format
   command: >
-    gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /root/tmp/kubernetes-release.key
+    gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /kube_builder/tmp/kubernetes-release.key
   args:
     creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
@@ -91,7 +83,7 @@
 
 - name: Convert key to gpg format
   command: >
-    gpg --dearmor -o /etc/apt/keyrings/cri-apt-keyring.gpg /root/tmp/cri-release.key
+    gpg --dearmor -o /etc/apt/keyrings/cri-apt-keyring.gpg /kube_builder/tmp/cri-release.key
   args:
     creates: /etc/apt/keyrings/cri-apt-keyring.gpg
   when: cri.package != "containerd"

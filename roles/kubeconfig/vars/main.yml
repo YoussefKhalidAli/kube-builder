@@ -39,3 +39,12 @@ kubeconfigs:
     key: admin.key
     server: "127.0.0.1"
     isUser: true
+
+workers_kubeconfigs:
+  - name: "{{ worker_hostname }}"
+    user: "system:node:{{ worker_hostname }}"
+    file: "{{ worker_hostname }}.kubeconfig"
+    cert: "{{ worker_hostname }}.crt"
+    key: "{{ worker_hostname }}.key"
+    server: "{{ master_ip }}"
+    isUser: false

@@ -1,0 +1,13 @@
+- name: Set up Kubernetes Master
+  hosts: worker
+  gather_facts: yes
+  become: yes
+  vars_files:
+    - roles/kubeconfig/vars/main.yml
+  roles:
+    - common
+    - client-tools
+    - copy-files
+    - cri
+    - bootstrap-controlplane
+    - tls-bootstrap-workers

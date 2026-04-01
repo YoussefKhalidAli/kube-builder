@@ -1,0 +1,39 @@
+- include_vars: "{{ item }}"
+  loop:
+    - "{{ playbook_dir }}/roles/bootstrap-controlplane/vars/main.yml"
+    - "{{ playbook_dir }}/roles/kubeconfig/vars/main.yml"
+    - "{{ playbook_dir }}/roles/tls-bootstrap-workers/vars/main.yml"
+
+- name: Force handlers to run now
+  meta: flush_handlers
+
+- name: Render bootstrap manafiests
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - {
+        src: bootstrap-token.yml.j2,
+        dest: "/kube_builder/tmp/bootstrap-token.yml",
+      }
+    - {
+        src: csr-create-clusterrolebinding.yml.j2,
+        dest: "/kube_builder/tmp/csr-create-clusterrolebinding.yml",
+      }
+    - {
+        src: csr-approve-clusterrolebinding.yml.j2,
+        dest: "/kube_builder/tmp/csr-approve-clusterrolebinding.yml",
+      }
+    - {
+        src: csr-renew-clusterrolebinding.yml.j2,
+        dest: "/kube_builder/tmp/csr-renew-clusterrolebinding.yml",
+      }
+
+# TODO: Replcae "command" module
+- name: Create bootstrap token in Kubernetes
+  command: kubectl create -f {{ item }} --kubeconfig {{ kubeconfig_dir }}/{{ kubeconfigs.admin.file }}
+  loop:
+    - "/kube_builder/tmp/bootstrap-token.yml"
+    - "/kube_builder/tmp/csr-create-clusterrolebinding.yml"
+    - "/kube_builder/tmp/csr-approve-clusterrolebinding.yml"
+    - "/kube_builder/tmp/csr-renew-clusterrolebinding.yml"

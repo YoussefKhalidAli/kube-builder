@@ -1,0 +1,12 @@
+- name: Generate kubeconfigs
+  template:
+    src: kubeconfig.j2
+    dest: "{{ kubeconfig_dir }}/{{ item.file }}"
+    owner: root
+    group: root
+    mode: "0600"
+  vars:
+    kubeconfig: "{{ item }}"
+  loop: "{{ workers_kubeconfigs }}"
+  loop_control:
+    label: "{{ item.name }}"

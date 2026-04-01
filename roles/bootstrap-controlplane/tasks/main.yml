@@ -1,7 +1,10 @@
-- import_tasks: etcd.yml
+# - import_tasks: etcd.yml
 
-- import_tasks: kube-apiserver.yml
+# - import_tasks: kube-apiserver.yml
 
-- import_tasks: kube-controller-manager.yml
+# - import_tasks: kube-controller-manager.yml
 
-- import_tasks: kube-scheduler.yml
+# - import_tasks: kube-scheduler.yml
+- import_tasks: kubelet.yml
+
+- import_tasks: kube-proxy.yml

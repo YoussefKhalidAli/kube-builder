@@ -4,10 +4,12 @@ cri_options:
     list: "kubernetes"
     package: containerd
     service: containerd
+    socket: "unix:///var/run/containerd/containerd.sock"
   cri_o:
     url: "https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ kube_repo_version }}/deb/"
     list: "cri-o"
     package: cri-o
     service: crio
+    socket: "unix:///var/run/crio/crio.sock"
 
 cri: "{{ cri_options.containerd }}"

@@ -1,0 +1,19 @@
+- include_vars: "{{ item }}"
+  loop:
+    - "{{ playbook_dir }}/roles/bootstrap-controlplane/vars/kubelet.yml"
+    - "{{ playbook_dir }}/roles/bootstrap-controlplane/vars/main.yml"
+    - "{{ playbook_dir }}/roles/kubeconfig/vars/main.yml"
+
+- name: Render kubelet configs
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - {
+        src: bootstrap-kubeconfig.j2,
+        dest: "{{ kubelet_config_dir }}/bootstrap-kubeconfig",
+      }
+    - {
+        src: kubelet-config.yml.j2,
+        dest: "{{ kubelet_config_dir }}/kubelet-config.yml",
+      }
