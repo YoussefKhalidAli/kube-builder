@@ -11,3 +11,4 @@
     - cri
     - bootstrap-controlplane
     - tls-bootstrap-workers
+    - networking

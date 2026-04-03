@@ -1,0 +1,8 @@
+cni_options:
+  weave:
+    version: v2.8.1
+    files: https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+
+cni: "{{ cni_options.weave }}"
+
+dns: https://raw.githubusercontent.com/mmumshad/kubernetes-the-hard-way/master/deployments/coredns.yaml

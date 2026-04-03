@@ -140,6 +140,14 @@
     mode: "0644"
   when: cri.package == "containerd"
 
+# Container Specific (Remove later)
+- name: Set native snapshotter in containerd config
+  copy:
+    dest: /etc/containerd/config.toml
+    content: '{{ containerd_default_config.stdout |
+      regex_replace(''SystemdCgroup = false'', ''SystemdCgroup = true'') |
+      regex_replace(''snapshotter = "overlayfs"'', ''snapshotter = "native"'') }}'
+
 - name: Verify kubectl installation
   command: kubectl version --client
   register: kubectl_version
