@@ -4,6 +4,8 @@
   become: yes
   vars_files:
     - roles/kubeconfig/vars/main.yml
+  vars:
+    kind: worker
   roles:
     - common
     - client-tools

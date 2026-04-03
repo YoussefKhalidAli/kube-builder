@@ -2,6 +2,8 @@
   hosts: master
   gather_facts: yes
   become: yes
+  vars:
+    kind: master
 
   roles:
     - common

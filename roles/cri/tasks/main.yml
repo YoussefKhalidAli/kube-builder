@@ -106,15 +106,9 @@
       - kubectl
       - ipvsadm
       - ipset
+      - cri-tools
     state: present
     update_cache: yes
-
-- name: Install crio-tools if using cri-o
-  apt:
-    name: cri-tools
-    state: present
-    update_cache: yes
-  when: cri.package == "cri-o"
 
 - name: Ensure /etc/containerd exists
   file:

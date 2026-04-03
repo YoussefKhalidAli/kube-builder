@@ -1,5 +1,15 @@
 - include_vars: "{{ playbook_dir }}/roles/kubeconfig/vars/main.yml"
 
 - name: Create cni pods
-  command: kubectl create -f {{ cni.files }} --kubeconfig {{ kubeconfig_dir }}/{{ kubeconfigs.admin.file }}
+  command: kubectl apply -f {{ cni.files }} --kubeconfig {{ kubeconfig_dir }}/{{ kubeconfigs.admin.file }}
+  delegate_to: "{{ groups['master'][0] }}"
+
+- name: copy dns manifest
+  template:
+    src: coredns.yml.j2
+    dest: /kube_builder/tmp/coredns.yml
+  delegate_to: "{{ groups['master'][0] }}"
+
+- name: Create cni pods
+  command: kubectl apply -f /kube_builder/tmp/coredns.yml --kubeconfig {{ kubeconfig_dir }}/{{ kubeconfigs.admin.file }}
   delegate_to: "{{ groups['master'][0] }}"
