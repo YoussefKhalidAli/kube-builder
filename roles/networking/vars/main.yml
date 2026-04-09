@@ -1,8 +1,18 @@
 cni_options:
   weave:
+    name: weave
     version: v2.8.1
     files: https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+  calico:
+    name: calico
+    version: v3.31.4
+    files: https://raw.githubusercontent.com/projectcalico/calico/v3.31.4/manifests/tigera-operator.yaml
+    crds: https://raw.githubusercontent.com/projectcalico/calico/v3.31.4/manifests/operator-crds.yaml
+  cilium:
+    name: cilium
+    version: v1.15.4
+    files: https://helm.cilium.io/
 
-cni: "{{ cni_options.weave }}"
+cni: "{{ cni_options.calico }}"
 
 dns: https://raw.githubusercontent.com/mmumshad/kubernetes-the-hard-way/master/deployments/coredns.yaml

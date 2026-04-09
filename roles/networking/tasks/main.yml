@@ -1,15 +1,12 @@
 - include_vars: "{{ playbook_dir }}/roles/kubeconfig/vars/main.yml"
 
-- name: Create cni pods
-  command: kubectl apply -f {{ cni.files }} --kubeconfig {{ kubeconfig_dir }}/{{ kubeconfigs.admin.file }}
-  delegate_to: "{{ groups['master'][0] }}"
+- include_tasks: weave.yml
+  when: cni.name == "weave"
 
-- name: copy dns manifest
-  template:
-    src: coredns.yml.j2
-    dest: /kube_builder/tmp/coredns.yml
-  delegate_to: "{{ groups['master'][0] }}"
+- include_tasks: calico.yml
+  when: cni.name == "calico"
 
-- name: Create cni pods
-  command: kubectl apply -f /kube_builder/tmp/coredns.yml --kubeconfig {{ kubeconfig_dir }}/{{ kubeconfigs.admin.file }}
-  delegate_to: "{{ groups['master'][0] }}"
+- include_tasks: cilium.yml
+  when: cni.name == "cilium"
+
+- include_tasks: coredns.yml

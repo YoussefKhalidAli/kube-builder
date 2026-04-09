@@ -1,0 +1,5 @@
+- include_vars: "{{ playbook_dir }}/roles/kubeconfig/vars/main.yml"
+
+- name: Create cni pods
+  command: kubectl apply -f {{ cni.files }} --kubeconfig {{ kubeconfig_dir }}/{{ kubeconfigs.admin.file }}
+  delegate_to: "{{ master_ip }}"

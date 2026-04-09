@@ -1,0 +1,10 @@
+- name: copy dns manifest
+  template:
+    src: coredns.yml.j2
+    dest: /kube_builder/tmp/coredns.yml
+  delegate_to: "{{ master_ip }}"
+
+- name: Create coredns pods
+  command: kubectl create -f /kube_builder/tmp/coredns.yml --kubeconfig {{ kubeconfig_dir }}/{{ kubeconfigs.admin.file }}
+  delegate_to: "{{ master_ip }}"
+  ignore_errors: yes

@@ -1,0 +1,20 @@
+- name: Install CRD's
+  command: kubectl create -f {{ cni.crds }} --kubeconfig {{ kubeconfig_dir }}/{{ kubeconfigs.admin.file }}
+  ignore_errors: yes
+  delegate_to: "{{ master_ip }}"
+
+- name: Copy calico custom resources
+  template:
+    src: calico-custom.yml.j2
+    dest: /kube_builder/tmp/calico-custom.yml
+  delegate_to: "{{ master_ip }}"
+
+- name: Create cni pods
+  command: kubectl create -f {{ cni.files }} --kubeconfig {{ kubeconfig_dir }}/{{ kubeconfigs.admin.file }}
+  ignore_errors: yes
+  delegate_to: "{{ master_ip }}"
+
+- name: Create calico custom resources
+  command: kubectl create -f /kube_builder/tmp/calico-custom.yml --kubeconfig {{ kubeconfig_dir }}/{{ kubeconfigs.admin.file }}
+  ignore_errors: yes
+  delegate_to: "{{ master_ip }}"
