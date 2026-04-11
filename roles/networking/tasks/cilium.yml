@@ -1,31 +1,27 @@
 # Install helm
-- name: Add Helm GPG key
-  apt_key:
-    url: https://baltocdn.com/helm/signing.asc
-    state: present
-    delegate_to: "{{ master_ip }}"
+- name: Download Helm install script
+  get_url:
+    url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+    dest: /tmp/get_helm.sh
+    mode: "0755"
+  delegate_to: "{{ master_ip }}"
 
-- name: Add Helm repo
-  apt_repository:
-    repo: "deb https://baltocdn.com/helm/stable/debian/ all main"
-    state: present
-    delegate_to: "{{ master_ip }}"
-
-- name: Install Helm
-  apt:
-    name: helm
-    state: present
-    update_cache: yes
-    delegate_to: "{{ master_ip }}"
-
+- name: Run Helm install script
+  command: /tmp/get_helm.sh
+  delegate_to: "{{ master_ip }}"
 # TODO: Replace "command" module
 - name: Add cilium helm repo
-  command: helm repo add cilium {{ cni.files }} && helm repo update
+  command: helm repo add cilium {{ cni.files }}
+  delegate_to: "{{ master_ip }}"
+
+- name: Update helm repos
+  command: helm repo update
   delegate_to: "{{ master_ip }}"
 
 - name: Install cilium
   command: |
-    helm install cilium cilium/cilium --version <VERSION> \
+    helm install cilium cilium/cilium \
     --namespace kube-system \
-    --set operator.replicas=1
+    --set operator.replicas=1 \
+    --kubeconfig={{ kubeconfig_dir }}/{{ kubeconfigs.admin.file }}
   delegate_to: "{{ master_ip }}"
