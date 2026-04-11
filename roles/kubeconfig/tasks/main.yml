@@ -10,5 +10,3 @@
   loop: "{{ kubeconfigs | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
-
-- import_tasks: workers.yml

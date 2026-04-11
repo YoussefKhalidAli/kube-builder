@@ -1,0 +1,8 @@
+workers_kubeconfigs:
+  name: "{{ hostname }}"
+  user: "system:node:{{ hostname }}"
+  file: "{{ hostname }}.kubeconfig"
+  cert: "{{ hostname }}.crt"
+  key: "{{ hostname }}.key"
+  server: "{{ master_ip }}"
+  isUser: false

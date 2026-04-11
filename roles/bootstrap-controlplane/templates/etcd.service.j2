@@ -5,20 +5,20 @@ Documentation=https://github.com/coreos
 [Service]
 ExecStart={{ etcd_bin_dir }}/etcd \
   --name {{ etcd_name }} \
-  --cert-file=/etc/etcd/{{ etcd_cert.name }}.crt \
-  --key-file=/etc/etcd/{{ etcd_cert.name }}.key \
-  --peer-cert-file=/etc/etcd/{{ etcd_cert.name }}.crt \
-  --peer-key-file=/etc/etcd/{{ etcd_cert.name }}.key \
-  --trusted-ca-file=/etc/etcd/{{ ca_cert.name }}.crt \
-  --peer-trusted-ca-file=/etc/etcd/{{ ca_cert.name }}.crt \
+  --cert-file=/etc/etcd/{{ certs.etcd.name }}.crt \
+  --key-file=/etc/etcd/{{ certs.etcd.name }}.key \
+  --peer-cert-file=/etc/etcd/{{ certs.etcd.name }}.crt \
+  --peer-key-file=/etc/etcd/{{ certs.etcd.name }}.key \
+  --trusted-ca-file=/etc/etcd/{{ certs.ca.name }}.crt \
+  --peer-trusted-ca-file=/etc/etcd/{{ certs.ca.name }}.crt \
   {{ peer_auths | default('') }} \
   {{ client_auths | default('') }} \
-  --initial-advertise-peer-urls https://{{ control_plane_ip }}:2380 \
-  --listen-peer-urls https://{{ control_plane_ip }}:2380 \
-  --listen-client-urls https://{{ control_plane_ip }}:2379,https://127.0.0.1:2379 \
-  --advertise-client-urls https://{{ control_plane_ip }}:2379 \
+  --initial-advertise-peer-urls https://{{ private_ip }}:2380 \
+  --listen-peer-urls https://{{ private_ip }}:2380 \
+  --listen-client-urls https://{{ private_ip }}:2379,https://127.0.0.1:2379 \
+  --advertise-client-urls https://{{ private_ip }}:2379 \
   --initial-cluster-token {{ initial_cluster_token }} \
-  --initial-cluster {{ etcd_name }}=https://{{ control_plane_ip }}:2380 \
+  --initial-cluster {{ etcd_name }}=https://{{ private_ip }}:2380 \
   --initial-cluster-state {{ initial_cluster_state }} \
   --data-dir={{ etcd_data_dir }}
 Restart={{ restart }}

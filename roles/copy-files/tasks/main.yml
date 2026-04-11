@@ -1,16 +1,25 @@
+- name: Load certificate vars
+  include_vars: "{{ playbook_dir }}/roles/security/vars/main.yml"
+
+- name: Create worker kubeconfigs
+  import_tasks: "{{ playbook_dir }}/roles/kubeconfig/tasks/worker.yml"
+
+- name: Create worker certificates
+  import_tasks: "{{ playbook_dir }}/roles/security/tasks/worker.yml"
+
 - name: Read certs from master
   slurp:
     src: "{{ item }}"
   register: certs_content
   loop:
-    - "{{ cert_dir }}/{{ ca_cert.name }}.crt"
-    - "{{ cert_dir }}/{{ worker_hostname }}.crt"
-    - "{{ cert_dir }}/{{ worker_hostname }}.key"
-    - "{{ kubeconfig_dir }}/{{ worker_hostname }}.kubeconfig"
+    - "{{ cert_dir }}/{{ certs.ca.name }}.crt"
+    - "{{ cert_dir }}/{{ hostname }}.crt"
+    - "{{ cert_dir }}/{{ hostname }}.key"
+    - "{{ kubeconfig_dir }}/{{ hostname }}.kubeconfig"
     - "{{ kubeconfig_dir }}/{{ kubeconfigs.kube_proxy.file }}"
     - "{{ cert_dir }}/{{ certs.kube_proxy.name }}.crt"
     - "{{ cert_dir }}/{{ certs.kube_proxy.name }}.key"
-  delegate_to: 172.25.0.10
+  delegate_to: "{{ master_ip }}"
 
 - name: Write certs to worker
   copy:

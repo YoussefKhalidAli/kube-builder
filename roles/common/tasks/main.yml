@@ -1,4 +1,7 @@
-- include_vars: "{{ playbook_dir }}/roles/bootstrap-controlplane/vars/main.yml"
+- include_vars: "{{ item }}"
+  loop:
+    - "{{ playbook_dir }}/roles/bootstrap-controlplane/vars/main.yml"
+    - "{{ playbook_dir }}/roles/security/vars/main.yml"
 
 - name: Ensure required directories exist
   file:

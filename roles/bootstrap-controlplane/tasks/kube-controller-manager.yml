@@ -40,10 +40,10 @@
   loop:
     - "{{ certs.kube_controller_manager.name }}.crt"
     - "{{ certs.kube_controller_manager.name }}.key"
-    - "{{ ca_cert.name }}.crt"
-    - "{{ ca_cert.name }}.key"
-    - "{{ etcd_cert.name }}.crt"
-    - "{{ etcd_cert.name }}.key"
+    - "{{ certs.ca.name }}.crt"
+    - "{{ certs.ca.name }}.key"
+    - "{{ certs.etcd.name }}.crt"
+    - "{{ certs.etcd.name }}.key"
     - "{{ certs.admin.name }}.crt"
     - "{{ certs.admin.name }}.key"
     - service-account.crt

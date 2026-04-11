@@ -1,0 +1,4 @@
+worker_certs:
+  - name: "{{ hostname }}"
+    ip: "{{ public_ip }}"
+    expiration: +1000d

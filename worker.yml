@@ -1,4 +1,4 @@
-- name: Set up Kubernetes Master
+- name: Set up Kubernetes worker
   hosts: worker
   gather_facts: yes
   become: yes
@@ -6,6 +6,10 @@
     - roles/kubeconfig/vars/main.yml
   vars:
     kind: worker
+    hostname: "{{ ansible_hostname }}"
+    master_ip: "{{ groups['master'][0] }}"
+    public_ip: "{{ groups['worker'][0] }}"
+    private_ip: "{{ ansible_default_ipv4.address }}"
   roles:
     - common
     - client-tools

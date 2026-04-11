@@ -1,0 +1,55 @@
+# Encryption configuration
+encryption_key_file: /etc/kubernetes/pki/encryption.key
+encryption_config_file: /etc/kubernetes/encryption-config.yaml
+
+# Certificates
+cert_dir: /etc/kubernetes/pki
+
+certs:
+  kube_apiserver:
+    name: kube-apiserver
+    subj: "/CN=kube-apiserver/O=Kubernetes"
+    expiration: +1000d
+
+  ca:
+    name: ca
+    subj: "/CN=KUBERNETES-CA/O=Kubernetes"
+    expiration: +1000d
+
+  etcd:
+    name: etcd-server
+    subj: "Kubernetes"
+    expiration: +1000d
+
+  kube_controller_manager:
+    name: kube-controller-manager
+    subj: "/CN=system:kube-controller-manager/O=system:kube-controller-manager"
+    expiration: +1000d
+
+  kube_scheduler:
+    name: kube-scheduler
+    subj: "/CN=system:kube-scheduler/O=system:kube-scheduler"
+    expiration: +1000d
+
+  kube_proxy:
+    name: kube-proxy
+    subj: "/CN=system:kube-proxy/O=system:node-proxier"
+    expiration: +1000d
+
+  service_account:
+    name: service-account
+    subj: "/CN=service-accounts/O=Kubernetes"
+    expiration: +1000d
+
+  apiserver_kubelet_client:
+    name: apiserver-kubelet-client
+    subj: "/CN=kube-apiserver-kubelet-client/O=system:masters"
+    expiration: +1000d
+    extended_key_usage:
+      - clientAuth
+    extended_key_usage_critical: yes
+
+  admin:
+    name: admin
+    subj: "/CN=admin/O=system:masters"
+    expiration: +1000d

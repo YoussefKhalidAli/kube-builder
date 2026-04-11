@@ -1,3 +1,6 @@
+- name: Load certificate vars
+  include_vars: "{{ playbook_dir }}/roles/security/vars/main.yml"
+
 - import_tasks: etcd.yml
   when: kind == 'master' #"'etcd' in group_names"
 

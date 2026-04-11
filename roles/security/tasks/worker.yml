@@ -2,6 +2,8 @@
   loop:
     - "{{ playbook_dir }}/roles/bootstrap-controlplane/vars/main.yml"
     - "{{ playbook_dir }}/roles/kubeconfig/vars/main.yml"
+    - "{{ playbook_dir }}/roles/security/vars/worker.yml"
+    - "{{ playbook_dir }}/roles/security/vars/main.yml"
 
 - name: Generate private keys for workers
   community.crypto.openssl_privatekey:
@@ -9,6 +11,7 @@
     size: 2048
     type: RSA
   loop: "{{ worker_certs }}"
+  delegate_to: "{{ master_ip }}"
 
 - name: Generate CSRs for workers
   community.crypto.openssl_csr:
@@ -22,13 +25,15 @@
       - "DNS:{{ item.name }}"
       - "IP:{{ item.ip }}"
   loop: "{{ worker_certs }}"
+  delegate_to: "{{ master_ip }}"
 
 - name: Sign worker certificates
   community.crypto.x509_certificate:
     path: "{{ cert_dir }}/{{ item.name }}.crt"
     csr_path: "{{ cert_dir }}/{{ item.name }}.csr"
-    ownca_path: "{{ cert_dir }}/{{ ca_cert.name }}.crt"
-    ownca_privatekey_path: "{{ cert_dir }}/{{ ca_cert.name }}.key"
+    ownca_path: "{{ cert_dir }}/{{ certs.ca.name }}.crt"
+    ownca_privatekey_path: "{{ cert_dir }}/{{ certs.ca.name }}.key"
     provider: ownca
     ownca_not_after: "{{ item.expiration }}"
   loop: "{{ worker_certs }}"
+  delegate_to: "{{ master_ip }}"

@@ -4,6 +4,8 @@
   become: yes
   vars:
     kind: master
+    public_ip: "{{ groups['master'][0] }}"
+    private_ip: "{{ ansible_default_ipv4.address }}"
 
   roles:
     - common

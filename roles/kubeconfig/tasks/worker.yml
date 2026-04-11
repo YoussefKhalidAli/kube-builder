@@ -1,0 +1,12 @@
+- include_vars: "{{ playbook_dir }}/roles/kubeconfig/vars/worker.yml"
+
+- name: Generate kubeconfigs
+  template:
+    src: "{{ playbook_dir }}/roles/kubeconfig/templates/kubeconfig.j2"
+    dest: "{{ kubeconfig_dir }}/{{ workers_kubeconfigs.file }}"
+    owner: root
+    group: root
+    mode: "0600"
+  vars:
+    kubeconfig: "{{ workers_kubeconfigs }}"
+  delegate_to: "{{ master_ip }}"

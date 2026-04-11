@@ -2,7 +2,6 @@ pod_cidr: "10.244.0.0/16"
 service_cidr: "10.96.0.0/12"
 cluster_dns: "{{ service_cidr.split('.')[0] }}.{{ service_cidr.split('.')[1] }}.{{ service_cidr.split('.')[2] }}.10"
 api_service_ip: "{{ service_cidr.split('.')[0] }}.{{ service_cidr.split('.')[1] }}.{{ service_cidr.split('.')[2] }}.1"
-control_plane_ip: "{{ ansible_default_ipv4.address | default('172.25.0.10')}}" # Remove default when running on actual host
 
 arch_map:
   x86_64: amd64
@@ -10,68 +9,5 @@ arch_map:
 
 arch: "{{ arch_map[ansible_architecture] }}"
 
-worker_hostname: "worker1"
-
-master_ip: 172.25.0.10
-worker_ip: 172.25.0.11
-
 # Placeholder
 kube_repo_version: ""
-# Encryption configuration
-encryption_key_file: /etc/kubernetes/pki/encryption.key
-encryption_config_file: /etc/kubernetes/encryption-config.yaml
-
-# Certificates
-cert_dir: /etc/kubernetes/pki
-ca_expiration: +1000d
-apiserver_expiration: +1000d
-kube_apiserver_cert:
-  name: kube-apiserver
-  subj: "/CN=kube-apiserver/O=Kubernetes"
-
-ca_cert:
-  name: ca
-  subj: "/CN=KUBERNETES-CA/O=Kubernetes"
-
-etcd_cert:
-  name: etcd-server
-  expiration: +1000d
-
-certs:
-  kube_controller_manager:
-    name: kube-controller-manager
-    subj: "/CN=system:kube-controller-manager/O=system:kube-controller-manager"
-    expiration: +1000d
-
-  kube_scheduler:
-    name: kube-scheduler
-    subj: "/CN=system:kube-scheduler/O=system:kube-scheduler"
-    expiration: +1000d
-
-  kube_proxy:
-    name: kube-proxy
-    subj: "/CN=system:kube-proxy/O=system:node-proxier"
-    expiration: +1000d
-
-  service_account:
-    name: service-account
-    subj: "/CN=service-accounts/O=Kubernetes"
-    expiration: +1000d
-
-  apiserver_kubelet_client:
-    name: apiserver-kubelet-client
-    subj: "/CN=kube-apiserver-kubelet-client/O=system:masters"
-    expiration: +1000d
-    extended_key_usage:
-      - clientAuth
-    extended_key_usage_critical: yes
-
-  admin:
-    name: admin
-    subj: "/CN=admin/O=system:masters"
-    expiration: +1000d
-
-worker_certs:
-  - name: worker1
-    ip: 172.25.0.11
-    expiration: +1000d

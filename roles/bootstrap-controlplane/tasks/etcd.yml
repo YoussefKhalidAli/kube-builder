@@ -45,13 +45,13 @@
     mode: "0600"
     remote_src: yes
   loop:
-    - "{{ etcd_cert.name }}.key"
-    - "{{ etcd_cert.name }}.crt"
+    - "{{ certs.etcd.name }}.key"
+    - "{{ certs.etcd.name }}.crt"
 
 - name: Copy CA certificate to kubernetes pki
   copy:
-    src: "{{ cert_dir }}/{{ ca_cert.name }}.crt"
-    dest: "{{ kube_pki_dir }}/{{ ca_cert.name }}.crt"
+    src: "{{ cert_dir }}/{{ certs.ca.name }}.crt"
+    dest: "{{ kube_pki_dir }}/{{ certs.ca.name }}.crt"
     owner: root
     group: root
     mode: "0600"
@@ -59,8 +59,8 @@
 
 - name: Create symlink for CA certificate in etcd directory
   file:
-    src: "{{ kube_pki_dir }}/{{ ca_cert.name }}.crt"
-    dest: "/etc/etcd/{{ ca_cert.name }}.crt"
+    src: "{{ kube_pki_dir }}/{{ certs.ca.name }}.crt"
+    dest: "/etc/etcd/{{ certs.ca.name }}.crt"
     state: link
 
 - name: Create etcd systemd service

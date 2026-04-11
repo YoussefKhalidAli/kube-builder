@@ -16,13 +16,13 @@
 - name: Download kube-apiserver
   get_url:
     url: "https://dl.k8s.io/release/{{ k8s_version }}/bin/linux/{{ arch }}/kube-apiserver"
-    dest: "{{ apiserver_tmp_dir }}/{{ kube_apiserver_cert.name }}"
+    dest: "{{ apiserver_tmp_dir }}/{{ certs.kube_apiserver.name }}"
     mode: "0644"
 
 - name: Move kube-apiserver binary
   copy:
-    src: "{{ apiserver_tmp_dir }}/{{ kube_apiserver_cert.name }}"
-    dest: "{{ apiserver_bin_dir }}/{{ kube_apiserver_cert.name }}"
+    src: "{{ apiserver_tmp_dir }}/{{ certs.kube_apiserver.name }}"
+    dest: "{{ apiserver_bin_dir }}/{{ certs.kube_apiserver.name }}"
     mode: "0755"
     remote_src: yes
 
@@ -35,12 +35,12 @@
     mode: "0600"
     remote_src: yes
   loop:
-    - "{{ kube_apiserver_cert.name }}.crt"
-    - "{{ kube_apiserver_cert.name }}.key"
-    - "{{ ca_cert.name }}.crt"
-    - "{{ ca_cert.name }}.key"
-    - "{{ etcd_cert.name }}.crt"
-    - "{{ etcd_cert.name }}.key"
+    - "{{ certs.kube_apiserver.name }}.crt"
+    - "{{ certs.kube_apiserver.name }}.key"
+    - "{{ certs.ca.name }}.crt"
+    - "{{ certs.ca.name }}.key"
+    - "{{ certs.etcd.name }}.crt"
+    - "{{ certs.etcd.name }}.key"
     - service-account.crt
     - service-account.key
     - apiserver-kubelet-client.crt

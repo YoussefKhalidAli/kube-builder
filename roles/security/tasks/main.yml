@@ -1,14 +1,14 @@
 # CA certificate
 - name: Generate CA private key
   community.crypto.openssl_privatekey:
-    path: "{{ cert_dir }}/{{ ca_cert.name }}.key"
+    path: "{{ cert_dir }}/{{ certs.ca.name }}.key"
     size: 2048
     type: RSA
 
 - name: Generate CA CSR
   community.crypto.openssl_csr:
-    path: "{{ cert_dir }}/{{ ca_cert.name }}.csr"
-    privatekey_path: "{{ cert_dir }}/{{ ca_cert.name }}.key"
+    path: "{{ cert_dir }}/{{ certs.ca.name }}.csr"
+    privatekey_path: "{{ cert_dir }}/{{ certs.ca.name }}.key"
     common_name: "KUBERNETES-CA"
     organization_name: "Kubernetes"
     basic_constraints:
@@ -21,12 +21,12 @@
 
 - name: Generate CA self-signed certificate
   community.crypto.x509_certificate:
-    path: "{{ cert_dir }}/{{ ca_cert.name }}.crt"
-    csr_path: "{{ cert_dir }}/{{ ca_cert.name }}.csr"
-    privatekey_path: "{{ cert_dir }}/{{ ca_cert.name }}.key"
+    path: "{{ cert_dir }}/{{ certs.ca.name }}.crt"
+    csr_path: "{{ cert_dir }}/{{ certs.ca.name }}.csr"
+    privatekey_path: "{{ cert_dir }}/{{ certs.ca.name }}.key"
     provider: selfsigned
     selfsigned_create_subject_key_identifier: always_create
-    selfsigned_not_after: "{{ ca_expiration }}"
+    selfsigned_not_after: "{{ certs.ca.expiration }}"
     unsafe_writes: yes
 
 # Other certs
@@ -35,7 +35,7 @@
     path: "{{ cert_dir }}/{{ item.value.name }}.key"
     size: 2048
     type: RSA
-  loop: "{{ certs | dict2items }}"
+  loop: "{{ (certs | dict2items)[3:] }}"
   loop_control:
     label: "{{ item.key }}"
 
@@ -47,7 +47,7 @@
     organization_name: "{{ item.value.subj.split('/O=')[1] }}"
     extended_key_usage: "{{ item.value.extended_key_usage | default(omit) }}"
     extended_key_usage_critical: "{{ item.value.extended_key_usage_critical | default(omit) }}"
-  loop: "{{ certs | dict2items}}"
+  loop: "{{ (certs | dict2items)[3:] }}"
   loop_control:
     label: "{{ item.key }}"
 
@@ -55,25 +55,25 @@
   community.crypto.x509_certificate:
     path: "{{ cert_dir }}/{{ item.value.name }}.crt"
     csr_path: "{{ cert_dir }}/{{ item.value.name }}.csr"
-    ownca_path: "{{ cert_dir }}/{{ ca_cert.name }}.crt"
-    ownca_privatekey_path: "{{ cert_dir }}/{{ ca_cert.name }}.key"
+    ownca_path: "{{ cert_dir }}/{{ certs.ca.name }}.crt"
+    ownca_privatekey_path: "{{ cert_dir }}/{{ certs.ca.name }}.key"
     ownca_not_after: "{{ item.value.expiration }}"
     provider: ownca
-  loop: "{{ certs | dict2items}}"
+  loop: "{{ (certs | dict2items)[3:] }}"
   loop_control:
     label: "{{ item.key }}"
 
 # Kube-apiserver certificate
 - name: Generate kube-apiserver private key
   community.crypto.openssl_privatekey:
-    path: "{{ cert_dir }}/{{ kube_apiserver_cert.name }}.key"
+    path: "{{ cert_dir }}/{{ certs.kube_apiserver.name }}.key"
     size: 2048
     type: RSA
 
 - name: Generate kube-apiserver CSR
   community.crypto.openssl_csr:
-    path: "{{ cert_dir }}/{{ kube_apiserver_cert.name }}.csr"
-    privatekey_path: "{{ cert_dir }}/{{ kube_apiserver_cert.name }}.key"
+    path: "{{ cert_dir }}/{{ certs.kube_apiserver.name }}.csr"
+    privatekey_path: "{{ cert_dir }}/{{ certs.kube_apiserver.name }}.key"
     common_name: "kube-apiserver"
     organization_name: "Kubernetes"
     basic_constraints:
@@ -94,31 +94,32 @@
       - "DNS:kubernetes.default.svc.cluster"
       - "DNS:kubernetes.default.svc.cluster.local"
       - "IP:{{ api_service_ip }}"
-      - "IP:{{ control_plane_ip }}"
+      - "IP:{{ public_ip }}"
+      - "IP:{{ private_ip }}"
       - "IP:127.0.0.1"
 
 - name: Sign kube-apiserver certificate with CA
   community.crypto.x509_certificate:
-    path: "{{ cert_dir }}/{{ kube_apiserver_cert.name }}.crt"
-    csr_path: "{{ cert_dir }}/{{ kube_apiserver_cert.name }}.csr"
-    ownca_path: "{{ cert_dir }}/{{ ca_cert.name }}.crt"
-    ownca_privatekey_path: "{{ cert_dir }}/{{ ca_cert.name }}.key"
-    ownca_not_after: "{{ apiserver_expiration }}"
+    path: "{{ cert_dir }}/{{ certs.kube_apiserver.name }}.crt"
+    csr_path: "{{ cert_dir }}/{{ certs.kube_apiserver.name }}.csr"
+    ownca_path: "{{ cert_dir }}/{{ certs.ca.name }}.crt"
+    ownca_privatekey_path: "{{ cert_dir }}/{{ certs.ca.name }}.key"
+    ownca_not_after: "{{ certs.kube_apiserver.expiration }}"
     provider: ownca
 
 # etcd certificate
 - name: Generate etcd-server private key
   community.crypto.openssl_privatekey:
-    path: "{{ cert_dir }}/{{ etcd_cert.name }}.key"
+    path: "{{ cert_dir }}/{{ certs.etcd.name }}.key"
     size: 2048
     type: RSA
 
 - name: Generate etcd-server CSR
   community.crypto.openssl_csr:
-    path: "{{ cert_dir }}/{{ etcd_cert.name }}.csr"
-    privatekey_path: "{{ cert_dir }}/{{ etcd_cert.name }}.key"
-    common_name: "{{ etcd_cert.name }}"
-    organization_name: "Kubernetes"
+    path: "{{ cert_dir }}/{{ certs.etcd.name }}.csr"
+    privatekey_path: "{{ cert_dir }}/{{ certs.etcd.name }}.key"
+    common_name: "{{ certs.etcd.name }}"
+    organization_name: "{{ certs.etcd.subj}}"
     basic_constraints:
       - "CA:FALSE"
     key_usage:
@@ -126,16 +127,16 @@
       - digitalSignature
       - keyEncipherment
     subject_alt_name:
-      - "IP:{{ control_plane_ip }}"
+      - "IP:{{ private_ip }}"
       - "IP:127.0.0.1"
 
 - name: Sign etcd-server certificate with CA
   community.crypto.x509_certificate:
-    path: "{{ cert_dir }}/{{ etcd_cert.name }}.crt"
-    csr_path: "{{ cert_dir }}/{{ etcd_cert.name }}.csr"
-    ownca_path: "{{ cert_dir }}/{{ ca_cert.name }}.crt"
-    ownca_privatekey_path: "{{ cert_dir }}/{{ ca_cert.name }}.key"
-    ownca_not_after: "{{ etcd_cert.expiration }}"
+    path: "{{ cert_dir }}/{{ certs.etcd.name }}.crt"
+    csr_path: "{{ cert_dir }}/{{ certs.etcd.name }}.csr"
+    ownca_path: "{{ cert_dir }}/{{ certs.ca.name }}.crt"
+    ownca_privatekey_path: "{{ cert_dir }}/{{ certs.ca.name }}.key"
+    ownca_not_after: "{{ certs.etcd.expiration }}"
     provider: ownca
 
 # Set the encryption key for secrets encryption
@@ -165,6 +166,3 @@
     src: encryption-config.yaml.j2
     dest: "{{ encryption_config_file }}"
     mode: "0600"
-
-- name: Create worker certificates
-  import_tasks: workers.yml

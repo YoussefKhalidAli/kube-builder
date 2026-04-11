@@ -10,7 +10,7 @@ kubeconfigs:
     file: kube-proxy.kubeconfig
     cert: kube-proxy.crt
     key: kube-proxy.key
-    server: "{{ ansible_default_ipv4.address | default('127.0.0.1') }}"
+    server: "{{ private_ip }}"
     isUser: false
 
   kube_scheduler:
@@ -19,7 +19,7 @@ kubeconfigs:
     file: kube-scheduler.kubeconfig
     cert: kube-scheduler.crt
     key: kube-scheduler.key
-    server: "127.0.0.1"
+    server: "{{ private_ip }}"
     isUser: false
 
   kube_controller_manager:
@@ -28,7 +28,7 @@ kubeconfigs:
     file: kube-controller-manager.kubeconfig
     cert: kube-controller-manager.crt
     key: kube-controller-manager.key
-    server: "127.0.0.1"
+    server: "{{ private_ip }}"
     isUser: false
 
   admin:
@@ -37,14 +37,5 @@ kubeconfigs:
     file: admin.kubeconfig
     cert: admin.crt
     key: admin.key
-    server: "127.0.0.1"
+    server: "{{ private_ip }}"
     isUser: true
-
-workers_kubeconfigs:
-  - name: "{{ worker_hostname }}"
-    user: "system:node:{{ worker_hostname }}"
-    file: "{{ worker_hostname }}.kubeconfig"
-    cert: "{{ worker_hostname }}.crt"
-    key: "{{ worker_hostname }}.key"
-    server: "{{ master_ip }}"
-    isUser: false

@@ -6,7 +6,7 @@ authentication:
   webhook:
     enabled: true
   x509:
-    clientCAFile: {{ kube_pki_dir }}/{{ ca_cert.name }}.crt
+    clientCAFile: {{ kube_pki_dir }}/{{ certs.ca.name }}.crt
 authorization:
   mode: Webhook
 containerRuntimeEndpoint: {{ cri.socket }}
