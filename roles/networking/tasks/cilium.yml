@@ -20,8 +20,9 @@
 
 - name: Install cilium
   command: |
-    helm install cilium cilium/cilium \
+    helm upgrade --install cilium cilium/cilium \
     --namespace kube-system \
     --set operator.replicas=1 \
     --kubeconfig={{ kubeconfig_dir }}/{{ kubeconfigs.admin.file }}
   delegate_to: "{{ master_ip }}"
+  run_once: true

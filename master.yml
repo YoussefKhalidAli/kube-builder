@@ -13,5 +13,5 @@
     - security
     - kubeconfig
     - bootstrap-controlplane
-    - cri
     - prepare-tls-bootstrap-workers
+    - cleanup

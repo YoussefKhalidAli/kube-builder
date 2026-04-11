@@ -1,0 +1,11 @@
+- name: Find files in temp dir
+  find:
+    paths: /kube_builder/tmp
+    file_type: any
+  register: tmp_files
+
+- name: Delete contents of temp dir
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ tmp_files.files }}"
