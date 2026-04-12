@@ -10,6 +10,9 @@
     master_ip: "{{ groups['master'][0] }}"
     public_ip: "{{ groups['worker'][0] }}"
     private_ip: "{{ ansible_default_ipv4.address }}"
+    components:
+      - kubelet
+      - kube-proxy
   roles:
     - common
     - client-tools

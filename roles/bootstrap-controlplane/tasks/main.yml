@@ -2,19 +2,19 @@
   include_vars: "{{ playbook_dir }}/roles/security/vars/main.yml"
 
 - import_tasks: etcd.yml
-  when: kind == 'master' #"'etcd' in group_names"
+  when: "'etcd' in components "
 
 - import_tasks: kube-apiserver.yml
-  when: kind == 'master' #"'kube-apiserver' in group_names"
+  when: "'kube-apiserver' in components "
 
 - import_tasks: kube-controller-manager.yml
-  when: kind == 'master' #"'kube-controller-manager' in group_names"
+  when: "'kube-controller-manager' in components "
 
 - import_tasks: kube-scheduler.yml
-  when: kind == 'master' #"'kube-scheduler' in group_names"
+  when: "'kube-scheduler' in components "
 
 - import_tasks: kubelet.yml
-  when: kind == 'worker' #"'kubelet' in group_names"
+  when: "'kubelet' in components "
 
 - import_tasks: kube-proxy.yml
-  when: kind == 'worker' #"'kube-proxy' in group_names"
+  when: "'kube-proxy' in components"

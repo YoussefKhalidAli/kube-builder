@@ -3,6 +3,7 @@
   loop:
     - "{{ role_path }}/vars/kubelet.yml"
     - "{{ playbook_dir }}/roles/kubeconfig/vars/main.yml"
+    - "{{ playbook_dir }}/roles/cri/vars/main.yml"
 
 - name: Create kubelet directories
   file:

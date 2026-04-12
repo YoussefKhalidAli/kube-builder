@@ -4,14 +4,26 @@
   become: yes
   vars:
     kind: master
+    hostname: "{{ ansible_hostname }}"
+    master_ip: "{{ groups['master'][0] }}"
     public_ip: "{{ groups['master'][0] }}"
     private_ip: "{{ ansible_default_ipv4.address }}"
-
+    components:
+      - etcd
+      - kube-apiserver
+      - kube-controller-manager
+      - kube-scheduler
+      - kubelet
+      - kube-proxy
   roles:
     - common
     - client-tools
     - security
     - kubeconfig
+    - role: cri
+      when: "'kubelet' in components"
     - bootstrap-controlplane
     - prepare-tls-bootstrap-workers
+    - role: networking
+      when: "'kubelet' in components"
     - cleanup

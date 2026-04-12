@@ -166,3 +166,7 @@
     src: encryption-config.yaml.j2
     dest: "{{ encryption_config_file }}"
     mode: "0600"
+
+- name: Create worker certs
+  import_tasks: "{{ role_path }}/tasks/worker.yml"
+  when: "'kubelet' in components"

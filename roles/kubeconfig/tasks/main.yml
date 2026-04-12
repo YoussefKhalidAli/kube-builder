@@ -1,3 +1,6 @@
+- name: Load certificate vars
+  include_vars: "{{ playbook_dir }}/roles/security/vars/main.yml"
+
 - name: Generate kubeconfigs
   template:
     src: kubeconfig.j2
@@ -10,3 +13,7 @@
   loop: "{{ kubeconfigs | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
+
+- name: Create worker kubeconfigs
+  import_tasks: "{{ role_path }}/tasks/worker.yml"
+  when: "'kubelet' in components"
